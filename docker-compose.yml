@@ -30,11 +30,18 @@ services:
       - "8080:8080"
 
   frontend:
-    image: node:20
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
     working_dir: /app/frontend
-    command: sh -c "npm install && npm run dev"
+    command: sh -c "npm ci && npm run dev"
     volumes:
-      - ./:/app
+      - ./frontend/src:/app/frontend/src
+      - ./frontend/index.html:/app/frontend/index.html
+      - ./frontend/vite.config.js:/app/frontend/vite.config.js
+      - ./frontend/package.json:/app/frontend/package.json
+      - ./frontend/package-lock.json:/app/frontend/package-lock.json
+      - frontend-node-modules:/app/frontend/node_modules
     ports:
       - "5173:5173"
 
@@ -48,5 +55,27 @@ services:
     ports:
       - "8088:80"
 
+  playwright:
+    image: mcr.microsoft.com/playwright:v1.58.0-jammy
+    working_dir: /app/frontend
+    command: sh -c "npm ci && count=0; while [ $$count -lt 30 ]; do if curl -fsS http://nginx/ > /dev/null; then break; fi; count=$$((count+1)); sleep 1; done; if [ $$count -eq 30 ]; then echo 'Timed out waiting for http://nginx/' >&2; exit 1; fi; npx playwright test"
+    profiles:
+      - test
+    depends_on:
+      - nginx
+    environment:
+      PLAYWRIGHT_BASE_URL: http://nginx
+      PLAYWRIGHT_OUTPUT_DIR: /tmp/playwright-results
+    volumes:
+      - ./frontend/tests:/app/frontend/tests
+      - ./frontend/playwright.config.js:/app/frontend/playwright.config.js
+      - ./frontend/package.json:/app/frontend/package.json
+      - ./frontend/package-lock.json:/app/frontend/package-lock.json
+      - playwright-node-modules:/app/frontend/node_modules
+      - playwright-results:/tmp/playwright-results
+
 volumes:
   db-data:
+  frontend-node-modules:
+  playwright-node-modules:
+  playwright-results:

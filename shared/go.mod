@@ -1,3 +1,3 @@
 module agent-workflow-testing/shared
 
-go 1.22
+go 1.25

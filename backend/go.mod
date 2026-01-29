@@ -1,6 +1,6 @@
 module agent-workflow-testing/backend
 
-go 1.22
+go 1.25
 
 require (
 	agent-workflow-testing/shared v0.0.0

@@ -14,6 +14,8 @@ Bootstrap project for verifying changes in a Go + React app with Postgres and an
 docker-compose up --build
 ```
 
+Frontend dependencies are installed inside the container with a dedicated `frontend-node-modules` volume, and the compose file only bind-mounts the frontend sources/config, so `node_modules` is not created on the host.
+
 Visit:
 
 - `http://localhost:8088` (nginx proxy)
@@ -25,3 +27,11 @@ Visit:
 - `GET /api/health`
 - `GET /api/messages`
 - `POST /api/messages` `{ "content": "hello" }`
+
+## Playwright
+
+Run end-to-end tests with the app started:
+
+```bash
+make e2e
+```
