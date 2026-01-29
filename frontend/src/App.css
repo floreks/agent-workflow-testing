@@ -121,9 +121,28 @@ li {
   gap: 1rem;
 }
 
+.message-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
 li time {
   font-size: 0.8rem;
   color: #6d5b46;
+}
+
+.delete-btn {
+  padding: 0.4rem 0.75rem;
+  font-size: 0.75rem;
+  background: #ffe0d6;
+  color: #8a2a16;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.delete-btn:hover {
+  background: #ffc9b3;
 }
 
 .empty {
@@ -148,5 +167,10 @@ li time {
 
   li {
     flex-direction: column;
+  }
+
+  .message-actions {
+    justify-content: space-between;
+    width: 100%;
   }
 }
