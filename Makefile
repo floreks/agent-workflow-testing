@@ -24,9 +24,14 @@ wait:
 	echo "Timed out waiting for $(HEALTH_URL) and $(BASE_URL)/" >&2; \
 	exit 1
 
-e2e:
+e2e-in-docker:
 	@set -euo pipefail; \
 	trap '$(MAKE) -C $(ROOT_DIR) down' EXIT; \
 	$(MAKE) -C $(ROOT_DIR) up; \
 	$(MAKE) -C $(ROOT_DIR) wait; \
 	$(COMPOSE) --profile test run --rm -e PLAYWRIGHT_BASE_URL=$(PLAYWRIGHT_BASE_URL) playwright
+
+e2e: up
+	@set -euo pipefail; \
+	trap '$(MAKE) -C $(ROOT_DIR) down' EXIT; \
+	cd frontend && npm ci && npm run test:e2e

@@ -77,6 +77,11 @@ func (s *server) handleHealth(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if err := s.db.PingContext(r.Context()); err != nil {
+		http.Error(w, "database ping failed", http.StatusInternalServerError)
+		return
+	}
+
 	payload := map[string]string{
 		"status":  "ok",
 		"version": version.AppVersion,
