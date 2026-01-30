@@ -150,3 +150,12 @@ li time {
     flex-direction: column;
   }
 }
+
+/* Inline action button styles inside list items */
+li button.danger {
+  background: #ffebe8;
+  color: #8a2a16;
+  border: 1px solid #ffc8bd;
+  border-radius: 8px;
+  padding: 0.35rem 0.75rem;
+}
