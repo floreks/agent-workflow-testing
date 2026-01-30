@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strconv"
 	"syscall"
 	"time"
 
@@ -44,8 +45,10 @@ func main() {
 	app := &server{db: database}
 
 	mux := http.NewServeMux()
-	mux.HandleFunc("/api/health", app.handleHealth)
-	mux.HandleFunc("/api/messages", app.handleMessages)
+	mux.HandleFunc("GET /api/health", app.handleHealth)
+	mux.HandleFunc("GET /api/messages", app.handleListMessages)
+	mux.HandleFunc("POST /api/messages", app.handleCreateMessage)
+	mux.HandleFunc("DELETE /api/messages/{id}", app.handleDeleteMessage)
 
 	addr := getenv("APP_ADDR", ":8080")
 	server := &http.Server{
@@ -85,15 +88,27 @@ func (s *server) handleHealth(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, payload)
 }
 
-func (s *server) handleMessages(w http.ResponseWriter, r *http.Request) {
-	switch r.Method {
-	case http.MethodGet:
-		s.handleListMessages(w, r)
-	case http.MethodPost:
-		s.handleCreateMessage(w, r)
-	default:
-		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+func (s *server) handleDeleteMessage(w http.ResponseWriter, r *http.Request) {
+	idStr := r.PathValue("id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		http.Error(w, "invalid id", http.StatusBadRequest)
+		return
 	}
+
+	res, err := s.db.ExecContext(r.Context(), "DELETE FROM messages WHERE id = $1", id)
+	if err != nil {
+		http.Error(w, "delete failed", http.StatusInternalServerError)
+		return
+	}
+
+	rowsAffected, _ := res.RowsAffected()
+	if rowsAffected == 0 {
+		http.Error(w, "not found", http.StatusNotFound)
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
 }
 
 func (s *server) handleListMessages(w http.ResponseWriter, r *http.Request) {
