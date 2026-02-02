@@ -4,10 +4,7 @@ import { Builder, By, until } from "selenium-webdriver";
 import chrome from "selenium-webdriver/chrome.js";
 import * as chromedriver from "chromedriver";
 
-const baseUrl =
-  process.env.SELENIUM_BASE_URL ||
-  process.env.E2E_BASE_URL ||
-  "http://localhost:8088";
+const baseUrl = process.env.SELENIUM_BASE_URL || "http://localhost:8088";
 const remoteUrl = process.env.SELENIUM_REMOTE_URL;
 
 const createDriver = async () => {
@@ -54,11 +51,11 @@ test("can post a message and see it listed", async () => {
 
     await driver.get(`${baseUrl}/`);
     const input = await driver.wait(
-      until.elementLocated(By.css('input[placeholder="What should the agent verify?"]')),
+      until.elementLocated(By.css("input[placeholder=\"What should the agent verify?\"]")),
       10_000
     );
     await input.sendKeys(message);
-    const button = await driver.findElement(By.css('button[type="submit"]'));
+    const button = await driver.findElement(By.css("button[type=\"submit\"]"));
     await button.click();
 
     const list = await driver.findElement(By.css("ul"));

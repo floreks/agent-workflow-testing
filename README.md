@@ -42,6 +42,14 @@ Run Playwright inside Docker:
 make e2e-playwright-in-docker
 ```
 
+Run Playwright against a remote browser already exposed on `localhost:3000`:
+
+```bash
+make e2e-playwright-remote
+```
+
+This uses host networking and `PLAYWRIGHT_WS_ENDPOINT=ws://localhost:3000/chrome/playwright`.
+
 ## Cypress
 
 This target starts the stack and stops it afterward:
@@ -64,14 +72,14 @@ This target starts the stack and stops it afterward:
 make e2e-selenium
 ```
 
-To run Selenium against a browserless/chrome container via Docker Compose:
+To run Selenium against a remote browser exposed on `localhost:3000`:
 
 ```bash
 make e2e-selenium-remote
 ```
 
-This target sets `SELENIUM_BASE_URL` to `http://nginx` so the remote browser in docker can reach the app in docker. Override if needed.
+This uses host networking so the test container can reach both the app and the remote browser. The defaults are `SELENIUM_REMOTE_URL=http://localhost:3000` and `SELENIUM_BASE_URL=http://localhost:8088`.
 
 Override endpoints as needed:
 
-- `SELENIUM_REMOTE_URL` (defaults to `http://localhost:3000/webdriver`)
+- `SELENIUM_REMOTE_URL` (defaults to `http://localhost:3000`)

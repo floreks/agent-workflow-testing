@@ -61,16 +61,6 @@ services:
     ports:
     - "8088:80"
 
-  browserless:
-    image: browserless/chrome:latest
-    profiles:
-    - remote
-    environment:
-      MAX_CONCURRENT_SESSIONS: 1
-      PREBOOT_CHROME: true
-    ports:
-    - "3000:3000"
-
   playwright:
     image: mcr.microsoft.com/playwright:v1.58.0-jammy
     working_dir: /app/frontend
@@ -80,7 +70,7 @@ services:
     depends_on:
     - nginx
     environment:
-      PLAYWRIGHT_BASE_URL: http://nginx
+      PLAYWRIGHT_BASE_URL: ""
       PLAYWRIGHT_OUTPUT_DIR: /tmp/playwright-results
     volumes:
     - ./frontend/tests:/app/frontend/tests
@@ -105,12 +95,55 @@ services:
     - ./frontend/package-lock.json:/app/frontend/package-lock.json
     - cypress-node-modules:/app/frontend/node_modules
 
-  selenium:
+  ### Host-level containers to simulate remote browser environments
+
+  browserless:
+    image: ghcr.io/browserless/chrome:v2.38.4
+    network_mode: host
+    profiles:
+    - browserless
+    ports:
+    - "3000:3000"
+
+  e2e-playwright-remote:
+    image: node:25
+    network_mode: host
+    working_dir: /app/frontend
+    command: sh -c "npm ci && npm run test:e2e:playwright:remote"
+    environment:
+      PLAYWRIGHT_WS_ENDPOINT: ws://localhost:3000/chrome/playwright
+      PLAYWRIGHT_BASE_URL: http://localhost:8088
+    profiles:
+    - e2e-playwright-remote
+    depends_on:
+    - nginx
+    volumes:
+    - ./frontend/tests-remote:/app/frontend/tests-remote
+    - ./frontend/playwright.remote.config.js:/app/frontend/playwright.remote.config.js
+    - ./frontend/package.json:/app/frontend/package.json
+    - ./frontend/package-lock.json:/app/frontend/package-lock.json
+    - playwright-node-modules:/app/frontend/node_modules
+    - playwright-results:/tmp/playwright-results
+
+  selenium-browser:
+    image: selenium/standalone-chrome:latest
+    network_mode: host
+    environment:
+      SE_OPTS: "--port 3000"
+    profiles:
+    - selenium-browser
+    ports:
+    - "3000:3000"
+
+  e2e-selenium-remote:
     image: node:25
     working_dir: /app/frontend
-    command: sh -c "npm ci && SELENIUM_BASE_URL=http://localhost:8088 SELENIUM_REMOTE_URL=http://localhost:3000 node --test selenium/app.test.js"
+    command: sh -c "npm ci && npm run test:e2e:selenium"
+    environment:
+      SELENIUM_REMOTE_URL: http://localhost:3000
+      SELENIUM_BASE_URL: http://localhost:8088
     profiles:
-    - selenium
+    - e2e-selenium-remote
     depends_on:
     - nginx
     network_mode: host

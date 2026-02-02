@@ -1,18 +1,26 @@
-# Selenium Remote E2E (Always Run in Docker)
+## Agents
 
-Always run E2E tests in Docker, and always connect from the container to the remote
-browser exposed on `http://localhost:3000` via host networking.
+### Testing expectations
+- Always add tests for any code changes, new features, or bug fixes.
+- Always run the relevant test suites locally before reporting completion.
+- If tests cannot be run, explain why and propose the closest alternative.
 
-1) Ensure the app is reachable at `http://localhost:8088`.
-2) Run the Selenium E2E suite in Docker with host networking:
+### Remote browser testing (localhost:3000)
+This repo provides Docker-based E2E targets that assume the browser is already exposed on `localhost:3000`.
+Always use the Docker targets with host networking so the test container can reach both the app and the remote browser.
 
+#### Playwright (remote browser)
+- Run the host-networked Docker target:
 ```bash
-docker run --rm --network host \
-  -v "$PWD/frontend:/app/frontend" \
-  -w /app/frontend \
-  node:25 sh -c "npm ci && SELENIUM_BASE_URL=http://localhost:8088 SELENIUM_REMOTE_URL=http://localhost:3000 node --test selenium/app.test.js"
+make e2e-playwright-remote
 ```
+- It uses `PLAYWRIGHT_WS_ENDPOINT=ws://localhost:3000/chrome/playwright` and `PLAYWRIGHT_BASE_URL=http://localhost:8088` from `docker-compose.yml`.
 
-If the app runs on a different host/port, update `SELENIUM_BASE_URL` accordingly.
+#### Selenium (remote browser)
+- Run the host-networked Docker target:
+```bash
+make e2e-selenium-remote
+```
+- It uses `SELENIUM_REMOTE_URL=http://localhost:3000` and `SELENIUM_BASE_URL=http://localhost:8088` from `docker-compose.yml`.
 
-Agents must always confirm any changes by running the E2E tests above.
+If you must override endpoints, do so via environment variables or `docker-compose.yml`, but keep `network_mode: host` for the remote-browser test containers.
