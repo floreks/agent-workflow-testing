@@ -105,9 +105,25 @@ services:
     - ./frontend/package-lock.json:/app/frontend/package-lock.json
     - cypress-node-modules:/app/frontend/node_modules
 
+  selenium:
+    image: node:25
+    working_dir: /app/frontend
+    command: sh -c "npm ci && SELENIUM_BASE_URL=http://localhost:8088 SELENIUM_REMOTE_URL=http://localhost:3000 node --test selenium/app.test.js"
+    profiles:
+    - selenium
+    depends_on:
+    - nginx
+    network_mode: host
+    volumes:
+    - ./frontend/selenium:/app/frontend/selenium
+    - ./frontend/package.json:/app/frontend/package.json
+    - ./frontend/package-lock.json:/app/frontend/package-lock.json
+    - selenium-node-modules:/app/frontend/node_modules
+
 volumes:
   db-data:
   frontend-node-modules:
   playwright-node-modules:
   playwright-results:
   cypress-node-modules:
+  selenium-node-modules:
