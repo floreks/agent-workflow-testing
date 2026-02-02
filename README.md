@@ -33,5 +33,45 @@ Visit:
 Run end-to-end tests with the app started:
 
 ```bash
-make e2e
+make e2e-playwright
 ```
+
+Run Playwright inside Docker:
+
+```bash
+make e2e-playwright-in-docker
+```
+
+## Cypress
+
+This target starts the stack and stops it afterward:
+
+```bash
+make e2e-cypress
+```
+
+Run Cypress inside Docker:
+
+```bash
+make e2e-cypress-in-docker
+```
+
+## Selenium
+
+This target starts the stack and stops it afterward:
+
+```bash
+make e2e-selenium
+```
+
+To run Selenium against a browserless/chrome container via Docker Compose:
+
+```bash
+make e2e-selenium-remote
+```
+
+This target sets `SELENIUM_BASE_URL` to `http://nginx` so the remote browser in docker can reach the app in docker. Override if needed.
+
+Override endpoints as needed:
+
+- `SELENIUM_REMOTE_URL` (defaults to `http://localhost:3000/webdriver`)

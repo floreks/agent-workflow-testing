@@ -61,12 +61,22 @@ services:
     ports:
     - "8088:80"
 
+  browserless:
+    image: browserless/chrome:latest
+    profiles:
+    - remote
+    environment:
+      MAX_CONCURRENT_SESSIONS: 1
+      PREBOOT_CHROME: true
+    ports:
+    - "3000:3000"
+
   playwright:
     image: mcr.microsoft.com/playwright:v1.58.0-jammy
     working_dir: /app/frontend
-    command: sh -c "npm ci && npx playwright install --with-deps chrome && npx playwright install --with-deps msedge && count=0; while [ $$count -lt 30 ]; do if curl -fsS http://nginx/ > /dev/null; then break; fi; count=$$((count+1)); sleep 1; done; if [ $$count -eq 30 ]; then echo 'Timed out waiting for http://nginx/' >&2; exit 1; fi; npx playwright test"
+    command: sh -c "npm ci && npx playwright install --with-deps chrome && npx playwright install --with-deps msedge && npx playwright test"
     profiles:
-    - test
+    - playwright
     depends_on:
     - nginx
     environment:
@@ -80,8 +90,24 @@ services:
     - playwright-node-modules:/app/frontend/node_modules
     - playwright-results:/tmp/playwright-results
 
+  cypress:
+    image: cypress/browsers:24.13.0
+    working_dir: /app/frontend
+    command: sh -c "npm ci && npx cypress run --config baseUrl=http://nginx"
+    profiles:
+    - cypress
+    depends_on:
+    - nginx
+    volumes:
+    - ./frontend/cypress:/app/frontend/cypress
+    - ./frontend/cypress.config.js:/app/frontend/cypress.config.js
+    - ./frontend/package.json:/app/frontend/package.json
+    - ./frontend/package-lock.json:/app/frontend/package-lock.json
+    - cypress-node-modules:/app/frontend/node_modules
+
 volumes:
   db-data:
   frontend-node-modules:
   playwright-node-modules:
   playwright-results:
+  cypress-node-modules:

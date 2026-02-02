@@ -7,7 +7,10 @@
     "dev": "vite --host 0.0.0.0 --port 5173",
     "build": "vite build",
     "preview": "vite preview --host 0.0.0.0 --port 5173",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "test:e2e:cypress": "cypress run",
+    "test:e2e:selenium": "node --test selenium/app.test.js",
+    "test:e2e:selenium:remote": "SELENIUM_REMOTE_URL=http://localhost:3000/webdriver node --test selenium/app.test.js"
   },
   "dependencies": {
     "react": "18.3.1",
@@ -16,6 +19,9 @@
   "devDependencies": {
     "@playwright/test": "1.58.0",
     "@vitejs/plugin-react": "5.1.2",
+    "chromedriver": "129.0.0",
+    "cypress": "13.13.0",
+    "selenium-webdriver": "4.26.0",
     "vite": "7.1.11"
   }
 }
