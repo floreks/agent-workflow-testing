@@ -6,7 +6,7 @@ BASE_URL ?= http://localhost:8088
 PLAYWRIGHT_BASE_URL ?= http://nginx
 HEALTH_URL := $(BASE_URL)/api/health
 
-.PHONY: up down wait e2e-playwright e2e-playwright-in-docker e2e-cypress e2e-cypress-in-docker e2e-selenium e2e-selenium-in-docker e2e-selenium-remote
+.PHONY: up down wait e2e-playwright e2e-playwright-in-docker e2e-cypress e2e-cypress-in-docker e2e-selenium e2e-selenium-in-docker e2e-selenium-remote e2e-auto
 
 up:
 	$(COMPOSE) up -d --build
@@ -59,3 +59,20 @@ e2e-selenium-remote: up
 	$(COMPOSE) --profiles remote up -d browserless; \
 	$(MAKE) -C $(ROOT_DIR) wait; \
 	cd frontend && npm ci && SELENIUM_BASE_URL=http://nginx:8088 SELENIUM_REMOTE_URL=http://localhost:3000/webdriver npm run test:e2e:selenium:remote
+
+# Prefer Selenium tests when available. If SELENIUM_REMOTE_URL is set, run against remote browser.
+e2e-auto:
+	@set -euo pipefail; \
+	trap '$(MAKE) -C $(ROOT_DIR) down' EXIT; \
+	if [ -d "frontend/selenium" ]; then \
+		$(MAKE) -C $(ROOT_DIR) up; \
+		$(MAKE) -C $(ROOT_DIR) wait; \
+		if [ -n "$$SELENIUM_REMOTE_URL" ]; then \
+			$(COMPOSE) --profiles remote up -d browserless; \
+			cd frontend && npm ci && SELENIUM_BASE_URL=http://nginx:8088 npm run test:e2e:selenium:remote; \
+		else \
+			cd frontend && npm ci && npm run test:e2e:selenium; \
+		fi; \
+	else \
+		echo "No Selenium tests found (frontend/selenium missing)."; \
+	fi

@@ -67,3 +67,40 @@ test("can post a message and see it listed", async () => {
     await driver.quit();
   }
 });
+
+test("can delete a posted message", async () => {
+  const driver = await createDriver();
+
+  try {
+    const message = `ToDelete ${Date.now()}`;
+
+    await driver.get(`${baseUrl}/`);
+
+    // Post a new message first
+    const input = await driver.wait(
+      until.elementLocated(By.css('input[placeholder="What should the agent verify?"]')),
+      10_000
+    );
+    await input.clear();
+    await input.sendKeys(message);
+    await (await driver.findElement(By.css('button[type="submit"]'))).click();
+
+    // Ensure it's in the list
+    const list = await driver.findElement(By.css("ul"));
+    await driver.wait(until.elementTextContains(list, message), 10_000);
+
+    // Click the delete button in the same list item as the message
+    const deleteBtn = await driver.findElement(
+      By.xpath(`//li[.//span[text()='${message}']]//button[normalize-space()='Delete']`)
+    );
+    await deleteBtn.click();
+
+    // Wait until the message no longer appears
+    await driver.wait(async () => {
+      const text = await list.getText();
+      return !text.includes(message);
+    }, 10_000);
+  } finally {
+    await driver.quit();
+  }
+});

@@ -75,3 +75,18 @@ This target sets `SELENIUM_BASE_URL` to `http://nginx` so the remote browser in 
 Override endpoints as needed:
 
 - `SELENIUM_REMOTE_URL` (defaults to `http://localhost:3000/webdriver`)
+
+### Auto E2E (Selenium-only if available)
+
+Run only the Selenium suite if present. If `SELENIUM_REMOTE_URL` is set, it will use the remote browser; otherwise it will run locally using chromedriver.
+
+```bash
+make e2e-auto
+```
+
+## Delete messages
+
+You can now remove messages from the board:
+
+- Backend: `DELETE /api/messages/:id` returns 204 on success, 404 if not found.
+- Frontend: Each message in the "Recent messages" list has a Delete button.

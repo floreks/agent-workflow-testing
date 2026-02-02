@@ -21,6 +21,22 @@ export default function App() {
     }
   };
 
+  const deleteMessage = async (id) => {
+    setError("");
+    try {
+      const res = await fetch(`${apiBase}/api/messages/${id}`, {
+        method: "DELETE"
+      });
+      if (!res.ok) {
+        if (res.status === 404) throw new Error("Message not found");
+        throw new Error("Failed to delete message");
+      }
+      await loadMessages();
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
   useEffect(() => {
     const load = async () => {
       try {
@@ -101,6 +117,13 @@ export default function App() {
               <li key={msg.id}>
                 <span>{msg.content}</span>
                 <time>{new Date(msg.createdAt).toLocaleString()}</time>
+                <button
+                  aria-label={`Delete message ${msg.id}`}
+                  className="danger"
+                  onClick={() => deleteMessage(msg.id)}
+                >
+                  Delete
+                </button>
               </li>
             ))
           )}
