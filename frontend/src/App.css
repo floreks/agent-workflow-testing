@@ -104,6 +104,14 @@ button {
   cursor: pointer;
 }
 
+button.danger {
+  background: #b91c1c;
+}
+
+button.danger:hover {
+  background: #991b1b;
+}
+
 ul {
   list-style: none;
   padding: 0;
