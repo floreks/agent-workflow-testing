@@ -58,3 +58,63 @@ test("can post a message and see it listed", async () => {
     await driver.quit();
   }
 });
+
+test("can delete a message from the list", async () => {
+  const driver = await createDriver();
+
+  try {
+    const message = `Delete test ${Date.now()}`;
+
+    // Navigate to app
+    await driver.get(`${baseUrl}/`);
+
+    // Post a new message
+    const input = await driver.wait(
+      until.elementLocated(By.css("input[placeholder=\"What should the agent verify?\"]")),
+      10_000
+    );
+    await input.sendKeys(message);
+    const submitButton = await driver.findElement(By.css("button[type=\"submit\"]"));
+    await submitButton.click();
+
+    // Wait for message to appear in list
+    const list = await driver.findElement(By.css("ul"));
+    await driver.wait(until.elementTextContains(list, message), 10_000);
+
+    // Find and click the delete button for our message
+    const messageItems = await driver.findElements(By.css("li.message-item"));
+    let deleteButton = null;
+
+    for (const item of messageItems) {
+      const text = await item.getText();
+      if (text.includes(message)) {
+        deleteButton = await item.findElement(By.css(".delete-btn"));
+        break;
+      }
+    }
+
+    assert(deleteButton, "Delete button not found for the posted message");
+    await deleteButton.click();
+
+    // Wait for message to be removed from the DOM
+    await driver.wait(async () => {
+      const items = await driver.findElements(By.css("li.message-item"));
+      for (const item of items) {
+        const text = await item.getText();
+        if (text.includes(message)) {
+          return false;
+        }
+      }
+      return true;
+    }, 10_000);
+
+    // Verify message is no longer in the list
+    const updatedItems = await driver.findElements(By.css("li.message-item"));
+    for (const item of updatedItems) {
+      const text = await item.getText();
+      assert(!text.includes(message), `Message "${message}" should be deleted but is still present`);
+    }
+  } finally {
+    await driver.quit();
+  }
+});

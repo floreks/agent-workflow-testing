@@ -121,9 +121,30 @@ li {
   gap: 1rem;
 }
 
+li.message-item {
+  align-items: center;
+}
+
+.message-meta {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
 li time {
   font-size: 0.8rem;
   color: #6d5b46;
+}
+
+.delete-btn {
+  padding: 0.4rem 0.9rem;
+  font-size: 0.8rem;
+  background: #e85d4e;
+  color: #fff;
+}
+
+.delete-btn:hover {
+  background: #c94a3d;
 }
 
 .empty {
