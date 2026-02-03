@@ -14,7 +14,7 @@ Always use the Docker targets with host networking so the test container can rea
 - Use Docker Compose directly (no `make` in this environment):
 ```bash
 docker compose up -d --build
-docker compose --profile e2e-playwright-remote run --rm e2e-playwright-remote
+docker compose --profile e2e-playwright-remote run --rm --no-deps e2e-playwright-remote
 ```
 - It uses `PLAYWRIGHT_WS_ENDPOINT=ws://localhost:3000/chrome/playwright` and `PLAYWRIGHT_BASE_URL=http://localhost:8088` from `docker-compose.yml`.
 
@@ -22,8 +22,16 @@ docker compose --profile e2e-playwright-remote run --rm e2e-playwright-remote
 - Use Docker Compose directly (no `make` in this environment):
 ```bash
 docker compose up -d --build
-docker compose --profile e2e-selenium-remote run --rm e2e-selenium-remote
+docker compose --profile e2e-selenium-remote run --rm --no-deps e2e-selenium-remote
 ```
 - It uses `SELENIUM_REMOTE_URL=http://localhost:3000` and `SELENIUM_BASE_URL=http://localhost:8088` from `docker-compose.yml`.
+
+#### Puppeteer (remote browser)
+- Use Docker Compose directly (no `make` in this environment):
+```bash
+docker compose up -d --build
+docker compose --profile e2e-puppeteer-remote run --rm --no-deps e2e-puppeteer-remote
+```
+- It uses `PUPPETEER_WS_ENDPOINT=ws://localhost:3000` and `PUPPETEER_BASE_URL=http://localhost:8088` from `docker-compose.yml`.
 
 If you must override endpoints, do so via environment variables or `docker-compose.yml`, but keep `network_mode: host` for the remote-browser test containers.

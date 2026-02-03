@@ -3,9 +3,9 @@ import { defineConfig, devices } from "@playwright/test";
 const baseURL = process.env.PLAYWRIGHT_BASE_URL || "http://localhost:8088";
 
 export default defineConfig({
-  testDir: "./tests",
+  testDir: "./e2e/playwright/default",
   timeout: 30_000,
-  outputDir: process.env.PLAYWRIGHT_OUTPUT_DIR || "test-results",
+  outputDir: process.env.PLAYWRIGHT_OUTPUT_DIR || "e2e/output",
   use: {
     baseURL,
     headless: true

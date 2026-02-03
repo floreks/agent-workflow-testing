@@ -62,7 +62,7 @@ services:
     - "8088:80"
 
   playwright:
-    image: mcr.microsoft.com/playwright:v1.58.0-jammy
+    image: mcr.microsoft.com/playwright:v1.57.0
     working_dir: /app/frontend
     command: sh -c "npm ci && npx playwright install --with-deps chrome && npx playwright install --with-deps msedge && npx playwright test"
     profiles:
@@ -70,10 +70,10 @@ services:
     depends_on:
     - nginx
     environment:
-      PLAYWRIGHT_BASE_URL: ""
+      PLAYWRIGHT_BASE_URL: http://nginx
       PLAYWRIGHT_OUTPUT_DIR: /tmp/playwright-results
     volumes:
-    - ./frontend/tests:/app/frontend/tests
+    - ./frontend/e2e/playwright/default:/app/frontend/e2e/playwright/default
     - ./frontend/playwright.config.js:/app/frontend/playwright.config.js
     - ./frontend/package.json:/app/frontend/package.json
     - ./frontend/package-lock.json:/app/frontend/package-lock.json
@@ -89,7 +89,7 @@ services:
     depends_on:
     - nginx
     volumes:
-    - ./frontend/cypress:/app/frontend/cypress
+    - ./frontend/e2e/cypress:/app/frontend/e2e/cypress
     - ./frontend/cypress.config.js:/app/frontend/cypress.config.js
     - ./frontend/package.json:/app/frontend/package.json
     - ./frontend/package-lock.json:/app/frontend/package-lock.json
@@ -97,13 +97,28 @@ services:
 
   ### Host-level containers to simulate remote browser environments
 
-  browserless:
+  chrome:
     image: ghcr.io/browserless/chrome:v2.38.4
     network_mode: host
     profiles:
-    - browserless
-    ports:
-    - "3000:3000"
+    - chrome
+    - e2e-playwright-remote
+
+  chromium:
+    image: ghcr.io/browserless/chromium:v2.38.4
+    network_mode: host
+    profiles:
+    - chromium
+    - e2e-puppeteer-remote
+
+  selenium-browser:
+    image: selenium/standalone-chrome:latest
+    network_mode: host
+    environment:
+      SE_OPTS: "--port 3000"
+    profiles:
+    - selenium-browser
+    - e2e-selenium-remote
 
   e2e-playwright-remote:
     image: node:25
@@ -117,28 +132,38 @@ services:
     - e2e-playwright-remote
     depends_on:
     - nginx
+    - chrome
     volumes:
-    - ./frontend/tests-remote:/app/frontend/tests-remote
+    - ./frontend/e2e/playwright/remote:/app/frontend/e2e/playwright/remote
     - ./frontend/playwright.remote.config.js:/app/frontend/playwright.remote.config.js
     - ./frontend/package.json:/app/frontend/package.json
     - ./frontend/package-lock.json:/app/frontend/package-lock.json
     - playwright-node-modules:/app/frontend/node_modules
     - playwright-results:/tmp/playwright-results
 
-  selenium-browser:
-    image: selenium/standalone-chrome:latest
+  e2e-puppeteer-remote:
+    image: node:25
     network_mode: host
+    working_dir: /app/frontend
+    command: sh -c "npm ci && npm run test:e2e:puppeteer:remote"
     environment:
-      SE_OPTS: "--port 3000"
+      PUPPETEER_WS_ENDPOINT: ws://localhost:3000
+      PUPPETEER_BASE_URL: http://localhost:8088
     profiles:
-    - selenium-browser
-    ports:
-    - "3000:3000"
+    - e2e-puppeteer-remote
+    depends_on:
+    - nginx
+    - chromium
+    volumes:
+    - ./frontend/e2e/puppeteer:/app/frontend/e2e/puppeteer
+    - ./frontend/package.json:/app/frontend/package.json
+    - ./frontend/package-lock.json:/app/frontend/package-lock.json
+    - puppeteer-node-modules:/app/frontend/node_modules
 
   e2e-selenium-remote:
     image: node:25
     working_dir: /app/frontend
-    command: sh -c "npm ci && npm run test:e2e:selenium"
+    command: sh -c "npm ci && npm run test:e2e:selenium:remote"
     environment:
       SELENIUM_REMOTE_URL: http://localhost:3000
       SELENIUM_BASE_URL: http://localhost:8088
@@ -146,9 +171,10 @@ services:
     - e2e-selenium-remote
     depends_on:
     - nginx
+    - selenium-browser
     network_mode: host
     volumes:
-    - ./frontend/selenium:/app/frontend/selenium
+    - ./frontend/e2e/selenium:/app/frontend/e2e/selenium
     - ./frontend/package.json:/app/frontend/package.json
     - ./frontend/package-lock.json:/app/frontend/package-lock.json
     - selenium-node-modules:/app/frontend/node_modules
@@ -160,3 +186,4 @@ volumes:
   playwright-results:
   cypress-node-modules:
   selenium-node-modules:
+  puppeteer-node-modules:

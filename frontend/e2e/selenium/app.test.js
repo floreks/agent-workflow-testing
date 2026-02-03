@@ -2,7 +2,6 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { Builder, By, until } from "selenium-webdriver";
 import chrome from "selenium-webdriver/chrome.js";
-import * as chromedriver from "chromedriver";
 
 const baseUrl = process.env.SELENIUM_BASE_URL || "http://localhost:8088";
 const remoteUrl = process.env.SELENIUM_REMOTE_URL;
@@ -12,12 +11,7 @@ const createDriver = async () => {
   options.addArguments("--headless=new", "--no-sandbox", "--disable-dev-shm-usage");
   const builder = new Builder().forBrowser("chrome").setChromeOptions(options);
 
-  if (remoteUrl) {
-    return builder.usingServer(remoteUrl).build();
-  }
-
-  const service = new chrome.ServiceBuilder(chromedriver.path);
-  return builder.setChromeService(service).build();
+  return builder.usingServer(remoteUrl).build();
 };
 
 test("homepage renders and health badge updates", async () => {

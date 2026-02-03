@@ -83,3 +83,19 @@ This uses host networking so the test container can reach both the app and the r
 Override endpoints as needed:
 
 - `SELENIUM_REMOTE_URL` (defaults to `http://localhost:3000`)
+
+## Puppeteer
+
+This target starts the stack and stops it afterward:
+
+```bash
+make e2e-puppeteer
+```
+
+To run Puppeteer against a remote browser exposed on `localhost:3000`:
+
+```bash
+make e2e-puppeteer-remote
+```
+
+This uses host networking so the test container can reach both the app and the remote browser. The defaults are `PUPPETEER_WS_ENDPOINT=ws://localhost:3000` and `PUPPETEER_BASE_URL=http://localhost:8088`.

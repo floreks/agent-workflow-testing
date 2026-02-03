@@ -8,9 +8,10 @@
     "build": "vite build",
     "preview": "vite preview --host 0.0.0.0 --port 5173",
     "test:e2e:playwright": "playwright test",
-    "test:e2e:playwright:remote": "playwright test -c playwright.remote.config.js",
     "test:e2e:cypress": "cypress run",
-    "test:e2e:selenium": "node --test selenium/app.test.js"
+    "test:e2e:playwright:remote": "playwright test -c playwright.remote.config.js",
+    "test:e2e:selenium:remote": "SELENIUM_REMOTE_URL=http://localhost:3000 node --test e2e/selenium/app.test.js",
+    "test:e2e:puppeteer:remote": "PUPPETEER_WS_ENDPOINT=ws://localhost:3000 node --test e2e/puppeteer/app.test.js"
   },
   "dependencies": {
     "react": "18.3.1",
@@ -18,10 +19,11 @@
   },
   "devDependencies": {
     "@playwright/test": "1.57.0",
-    "playwright-core": "1.57.0",
     "@vitejs/plugin-react": "5.1.2",
     "chromedriver": "129.0.0",
     "cypress": "13.13.0",
+    "playwright-core": "1.57.0",
+    "puppeteer-core": "24.36.1",
     "selenium-webdriver": "4.26.0",
     "vite": "7.1.11"
   }
