@@ -1,14 +1,15 @@
 package main
 
 import (
-	"context"
-	"database/sql"
-	"encoding/json"
-	"log"
-	"net/http"
-	"os"
-	"os/signal"
-	"syscall"
+    "context"
+    "database/sql"
+    "encoding/json"
+    "fmt"
+    "log"
+    "net/http"
+    "os"
+    "os/signal"
+    "syscall"
 	"time"
 
 	"agent-workflow-testing/backend/internal/db"
@@ -43,9 +44,11 @@ func main() {
 
 	app := &server{db: database}
 
-	mux := http.NewServeMux()
-	mux.HandleFunc("/api/health", app.handleHealth)
-	mux.HandleFunc("/api/messages", app.handleMessages)
+  mux := http.NewServeMux()
+  mux.HandleFunc("/api/health", app.handleHealth)
+  mux.HandleFunc("/api/messages", app.handleMessages)
+  // Routes with ID, e.g. /api/messages/123
+  mux.HandleFunc("/api/messages/", app.handleMessageByID)
 
 	addr := getenv("APP_ADDR", ":8080")
 	server := &http.Server{
@@ -91,14 +94,50 @@ func (s *server) handleHealth(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *server) handleMessages(w http.ResponseWriter, r *http.Request) {
-	switch r.Method {
-	case http.MethodGet:
-		s.handleListMessages(w, r)
-	case http.MethodPost:
-		s.handleCreateMessage(w, r)
-	default:
-		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
-	}
+  switch r.Method {
+  case http.MethodGet:
+    s.handleListMessages(w, r)
+  case http.MethodPost:
+    s.handleCreateMessage(w, r)
+  default:
+    http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+  }
+}
+
+// handleMessageByID handles operations on a single message resource
+func (s *server) handleMessageByID(w http.ResponseWriter, r *http.Request) {
+  // Expect path: /api/messages/{id}
+  if r.Method != http.MethodDelete {
+    http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+    return
+  }
+
+  // Extract ID from path
+  // Trim prefix "/api/messages/" and parse the remaining segment as integer
+  idStr := r.URL.Path[len("/api/messages/"):]
+  if idStr == "" {
+    http.Error(w, "id required", http.StatusBadRequest)
+    return
+  }
+
+  var id int
+  if _, err := fmt.Sscanf(idStr, "%d", &id); err != nil {
+    http.Error(w, "invalid id", http.StatusBadRequest)
+    return
+  }
+
+  res, err := s.db.ExecContext(r.Context(), `DELETE FROM messages WHERE id = $1`, id)
+  if err != nil {
+    http.Error(w, "delete failed", http.StatusInternalServerError)
+    return
+  }
+  n, _ := res.RowsAffected()
+  if n == 0 {
+    http.Error(w, "not found", http.StatusNotFound)
+    return
+  }
+
+  w.WriteHeader(http.StatusNoContent)
 }
 
 func (s *server) handleListMessages(w http.ResponseWriter, r *http.Request) {
