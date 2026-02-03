@@ -132,7 +132,7 @@ services:
     - e2e-playwright-remote
     depends_on:
     - nginx
-    - chrome
+    #    - chrome
     volumes:
     - ./frontend/e2e/playwright/remote:/app/frontend/e2e/playwright/remote
     - ./frontend/playwright.remote.config.js:/app/frontend/playwright.remote.config.js
@@ -153,7 +153,7 @@ services:
     - e2e-puppeteer-remote
     depends_on:
     - nginx
-    - chromium
+    #    - chromium
     volumes:
     - ./frontend/e2e/puppeteer:/app/frontend/e2e/puppeteer
     - ./frontend/package.json:/app/frontend/package.json
@@ -171,7 +171,7 @@ services:
     - e2e-selenium-remote
     depends_on:
     - nginx
-    - selenium-browser
+    #    - selenium-browser
     network_mode: host
     volumes:
     - ./frontend/e2e/selenium:/app/frontend/e2e/selenium
