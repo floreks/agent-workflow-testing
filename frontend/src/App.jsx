@@ -65,6 +65,28 @@ export default function App() {
     }
   };
 
+  const deleteMessage = async (id) => {
+    setError("");
+
+    try {
+      const res = await fetch(`${apiBase}/api/messages`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ id })
+      });
+
+      if (!res.ok) {
+        throw new Error("Failed to delete message");
+      }
+
+      loadMessages();
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
   return (
     <div className="app">
       <header>
@@ -101,6 +123,13 @@ export default function App() {
               <li key={msg.id}>
                 <span>{msg.content}</span>
                 <time>{new Date(msg.createdAt).toLocaleString()}</time>
+                <button
+                  className="delete-btn"
+                  onClick={() => deleteMessage(msg.id)}
+                  aria-label={`Delete message: ${msg.content}`}
+                >
+                  Delete
+                </button>
               </li>
             ))
           )}
