@@ -69,6 +69,25 @@ CREATE TABLE IF NOT EXISTS messages (
 	return err
 }
 
+func DeleteMessage(ctx context.Context, db *sql.DB, id int) error {
+	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
+
+	result, err := db.ExecContext(ctx, "DELETE FROM messages WHERE id = $1", id)
+	if err != nil {
+		return err
+	}
+
+	rows, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if rows == 0 {
+		return sql.ErrNoRows
+	}
+	return nil
+}
+
 func getenv(key, fallback string) string {
 	value := os.Getenv(key)
 	if value == "" {
