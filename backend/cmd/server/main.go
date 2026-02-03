@@ -96,6 +96,8 @@ func (s *server) handleMessages(w http.ResponseWriter, r *http.Request) {
 		s.handleListMessages(w, r)
 	case http.MethodPost:
 		s.handleCreateMessage(w, r)
+	case http.MethodDelete:
+		s.handleDeleteMessage(w, r)
 	default:
 		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
 	}
@@ -147,6 +149,39 @@ func (s *server) handleCreateMessage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	writeJSON(w, http.StatusCreated, msg)
+}
+
+func (s *server) handleDeleteMessage(w http.ResponseWriter, r *http.Request) {
+	var payload struct {
+		ID int `json:"id"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
+		http.Error(w, "invalid json", http.StatusBadRequest)
+		return
+	}
+	if payload.ID == 0 {
+		http.Error(w, "id required", http.StatusBadRequest)
+		return
+	}
+
+	result, err := s.db.ExecContext(r.Context(), `DELETE FROM messages WHERE id = $1`, payload.ID)
+	if err != nil {
+		http.Error(w, "delete failed", http.StatusInternalServerError)
+		return
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		http.Error(w, "check rows failed", http.StatusInternalServerError)
+		return
+	}
+
+	if rowsAffected == 0 {
+		http.Error(w, "message not found", http.StatusNotFound)
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
 }
 
 func writeJSON(w http.ResponseWriter, status int, payload any) {
