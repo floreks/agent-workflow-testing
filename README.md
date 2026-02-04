@@ -30,7 +30,7 @@ Visit:
 
 ## Playwright
 
-Run end-to-end tests with the app started:
+This target starts the stack and stops it afterward:
 
 ```bash
 make e2e-playwright
