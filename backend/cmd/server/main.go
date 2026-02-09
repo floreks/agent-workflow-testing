@@ -1,15 +1,16 @@
 package main
 
 import (
-	"context"
-	"database/sql"
-	"encoding/json"
-	"log"
-	"net/http"
-	"os"
-	"os/signal"
-	"syscall"
-	"time"
+    "context"
+    "database/sql"
+    "encoding/json"
+    "log"
+    "net/http"
+    "os"
+    "os/signal"
+    "strconv"
+    "syscall"
+    "time"
 
 	"agent-workflow-testing/backend/internal/db"
 	"agent-workflow-testing/shared/version"
@@ -91,14 +92,16 @@ func (s *server) handleHealth(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *server) handleMessages(w http.ResponseWriter, r *http.Request) {
-	switch r.Method {
-	case http.MethodGet:
-		s.handleListMessages(w, r)
-	case http.MethodPost:
-		s.handleCreateMessage(w, r)
-	default:
-		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
-	}
+    switch r.Method {
+    case http.MethodGet:
+        s.handleListMessages(w, r)
+    case http.MethodPost:
+        s.handleCreateMessage(w, r)
+    case http.MethodDelete:
+        s.handleDeleteMessage(w, r)
+    default:
+        http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+    }
 }
 
 func (s *server) handleListMessages(w http.ResponseWriter, r *http.Request) {
@@ -146,7 +149,35 @@ func (s *server) handleCreateMessage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	writeJSON(w, http.StatusCreated, msg)
+    writeJSON(w, http.StatusCreated, msg)
+}
+
+func (s *server) handleDeleteMessage(w http.ResponseWriter, r *http.Request) {
+    // Expect id in query string: /api/messages?id=123
+    idStr := r.URL.Query().Get("id")
+    if idStr == "" {
+        http.Error(w, "id required", http.StatusBadRequest)
+        return
+    }
+    id, err := strconv.Atoi(idStr)
+    if err != nil || id <= 0 {
+        http.Error(w, "invalid id", http.StatusBadRequest)
+        return
+    }
+
+    // Use DELETE ... RETURNING to know if a row was affected
+    var deletedID int
+    err = s.db.QueryRowContext(r.Context(), `DELETE FROM messages WHERE id=$1 RETURNING id`, id).Scan(&deletedID)
+    if err != nil {
+        if err == sql.ErrNoRows {
+            http.Error(w, "not found", http.StatusNotFound)
+            return
+        }
+        http.Error(w, "delete failed", http.StatusInternalServerError)
+        return
+    }
+
+    w.WriteHeader(http.StatusNoContent)
 }
 
 func writeJSON(w http.ResponseWriter, status int, payload any) {

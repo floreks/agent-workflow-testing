@@ -65,6 +65,25 @@ export default function App() {
     }
   };
 
+  const deleteMessage = async (id) => {
+    setError("");
+    try {
+      const res = await fetch(`${apiBase}/api/messages?id=${id}`, {
+        method: "DELETE"
+      });
+      if (res.status === 404) {
+        setError("Message not found (already deleted?)");
+        return;
+      }
+      if (!res.ok && res.status !== 204) {
+        throw new Error("Failed to delete message");
+      }
+      await loadMessages();
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
   return (
     <div className="app">
       <header>
@@ -101,6 +120,13 @@ export default function App() {
               <li key={msg.id}>
                 <span>{msg.content}</span>
                 <time>{new Date(msg.createdAt).toLocaleString()}</time>
+                <button
+                  aria-label={`Delete message ${msg.id}`}
+                  className="danger"
+                  onClick={() => deleteMessage(msg.id)}
+                >
+                  Delete
+                </button>
               </li>
             ))
           )}
