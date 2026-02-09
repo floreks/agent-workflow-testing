@@ -135,6 +135,16 @@ li time {
   margin-top: 0.75rem;
 }
 
+/* Delete button style */
+button.delete {
+  background: #ffe0e0;
+  color: #7a1a1a;
+  border: 1px solid #f5b5b5;
+}
+button.delete:hover {
+  background: #ffd1d1;
+}
+
 @media (max-width: 720px) {
   header {
     flex-direction: column;
