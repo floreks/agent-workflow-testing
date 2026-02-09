@@ -96,6 +96,8 @@ func (s *server) handleMessages(w http.ResponseWriter, r *http.Request) {
 		s.handleListMessages(w, r)
 	case http.MethodPost:
 		s.handleCreateMessage(w, r)
+	case http.MethodDelete:
+		s.handleDeleteMessage(w, r)
 	default:
 		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
 	}
@@ -147,6 +149,33 @@ func (s *server) handleCreateMessage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	writeJSON(w, http.StatusCreated, msg)
+}
+
+func (s *server) handleDeleteMessage(w http.ResponseWriter, r *http.Request) {
+	idStr := r.URL.Query().Get("id")
+	if idStr == "" {
+		http.Error(w, "id required", http.StatusBadRequest)
+		return
+	}
+
+	res, err := s.db.ExecContext(r.Context(), `DELETE FROM messages WHERE id = $1`, idStr)
+	if err != nil {
+		http.Error(w, "delete failed", http.StatusInternalServerError)
+		return
+	}
+
+	rows, err := res.RowsAffected()
+	if err != nil {
+		http.Error(w, "rows affected failed", http.StatusInternalServerError)
+		return
+	}
+
+	if rows == 0 {
+		http.Error(w, "not found", http.StatusNotFound)
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
 }
 
 func writeJSON(w http.ResponseWriter, status int, payload any) {

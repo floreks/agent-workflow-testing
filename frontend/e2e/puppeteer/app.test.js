@@ -58,3 +58,57 @@ test("can post a message and see it listed", async () => {
     await browser.close();
   }
 });
+
+test("can delete a message", async () => {
+  const browser = await createBrowser();
+  const page = await browser.newPage();
+
+  try {
+    const message = `Delete me ${Date.now()}`;
+
+    await page.goto(`${baseUrl}/`, { waitUntil: "domcontentloaded" });
+    await page.waitForSelector("input[placeholder=\"What should the agent verify?\"]", {
+      timeout: 10_000
+    });
+    await page.type("input[placeholder=\"What should the agent verify?\"]", message);
+    await page.click("button[type=\"submit\"]");
+
+    // Wait for message to appear
+    await page.waitForFunction(
+      (text) => {
+        const list = document.querySelector("ul");
+        return list && list.textContent && list.textContent.includes(text);
+      },
+      { timeout: 10_000 },
+      message
+    );
+
+    // Find the list item containing the message and click delete
+    await page.evaluate((text) => {
+      const listItems = document.querySelectorAll("li");
+      for (const item of listItems) {
+        if (item.textContent.includes(text)) {
+          const btn = item.querySelector("button");
+          if (btn && btn.textContent === "Delete") {
+            btn.click();
+            return;
+          }
+        }
+      }
+    }, message);
+
+    // Wait for message to disappear
+    await page.waitForFunction(
+      (text) => {
+        const list = document.querySelector("ul");
+        return list && (!list.textContent || !list.textContent.includes(text));
+      },
+      { timeout: 10_000 },
+      message
+    );
+
+  } finally {
+    await page.close();
+    await browser.close();
+  }
+});
