@@ -8,6 +8,8 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strconv"
+	"strings"
 	"syscall"
 	"time"
 
@@ -91,6 +93,12 @@ func (s *server) handleHealth(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *server) handleMessages(w http.ResponseWriter, r *http.Request) {
+	// Check if this is a DELETE request for a specific message ID
+	if r.Method == http.MethodDelete {
+		s.handleDeleteMessage(w, r)
+		return
+	}
+
 	switch r.Method {
 	case http.MethodGet:
 		s.handleListMessages(w, r)
@@ -147,6 +155,58 @@ func (s *server) handleCreateMessage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	writeJSON(w, http.StatusCreated, msg)
+}
+
+func (s *server) handleDeleteMessage(w http.ResponseWriter, r *http.Request) {
+	// Extract message ID from URL path
+	// URL format: /api/messages/123 or /api/messages?id=123
+	path := strings.TrimPrefix(r.URL.Path, "/api/messages")
+	var messageID int64
+	var err error
+
+	if strings.HasPrefix(path, "/") {
+		// Path parameter: /api/messages/123
+		idStr := strings.TrimPrefix(path, "/")
+		if idStr == "" {
+			http.Error(w, "message ID required", http.StatusBadRequest)
+			return
+		}
+		messageID, err = strconv.ParseInt(idStr, 10, 64)
+	} else {
+		// Query parameter: /api/messages?id=123
+		idStr := r.URL.Query().Get("id")
+		if idStr == "" {
+			http.Error(w, "message ID required", http.StatusBadRequest)
+			return
+		}
+		messageID, err = strconv.ParseInt(idStr, 10, 64)
+	}
+
+	if err != nil {
+		http.Error(w, "invalid message ID", http.StatusBadRequest)
+		return
+	}
+
+	// Delete the message from database
+	result, err := s.db.ExecContext(r.Context(), `DELETE FROM messages WHERE id = $1`, messageID)
+	if err != nil {
+		http.Error(w, "delete failed", http.StatusInternalServerError)
+		return
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		http.Error(w, "delete failed", http.StatusInternalServerError)
+		return
+	}
+
+	if rowsAffected == 0 {
+		http.Error(w, "message not found", http.StatusNotFound)
+		return
+	}
+
+	// Return success response
+	w.WriteHeader(http.StatusNoContent)
 }
 
 func writeJSON(w http.ResponseWriter, status int, payload any) {
