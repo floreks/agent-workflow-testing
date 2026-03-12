@@ -117,8 +117,12 @@ li {
   padding: 0.75rem 1rem;
   border-radius: 14px;
   display: flex;
-  justify-content: space-between;
+  align-items: center;
   gap: 1rem;
+}
+
+li span {
+  flex: 1;
 }
 
 li time {
@@ -133,6 +137,32 @@ li time {
 .error {
   color: #8a2a16;
   margin-top: 0.75rem;
+}
+
+.delete-btn {
+  background: #e74c3c;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  cursor: pointer;
+  font-size: 18px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: background-color 0.2s;
+  flex-shrink: 0;
+}
+
+.delete-btn:hover {
+  background: #c0392b;
+}
+
+.delete-btn:active {
+  background: #a93226;
 }
 
 @media (max-width: 720px) {

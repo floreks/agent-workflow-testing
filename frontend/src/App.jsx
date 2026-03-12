@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import "./App.css";
 
 const apiBase = import.meta.env.VITE_API_BASE || "";
 
@@ -65,6 +66,28 @@ export default function App() {
     }
   };
 
+  const deleteMessage = async (id) => {
+    setError("");
+
+    if (!confirm("Are you sure you want to delete this message?")) {
+      return;
+    }
+
+    try {
+      const res = await fetch(`${apiBase}/api/messages/${id}`, {
+        method: "DELETE"
+      });
+
+      if (!res.ok) {
+        throw new Error("Failed to delete message");
+      }
+
+      loadMessages();
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
   return (
     <div className="app">
       <header>
@@ -101,6 +124,13 @@ export default function App() {
               <li key={msg.id}>
                 <span>{msg.content}</span>
                 <time>{new Date(msg.createdAt).toLocaleString()}</time>
+                <button
+                  className="delete-btn"
+                  onClick={() => deleteMessage(msg.id)}
+                  aria-label="Delete message"
+                >
+                  ×
+                </button>
               </li>
             ))
           )}
