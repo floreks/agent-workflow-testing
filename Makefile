@@ -11,6 +11,10 @@ up: down
 down:
 	$(COMPOSE) down -v
 
+.PHONY: test-skills-format
+test-skills-format:
+	./scripts/validate-skill-format.sh
+
 ## Local E2E
 # Require node and npm to be available on the host.
 

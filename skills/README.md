@@ -11,3 +11,8 @@ This directory contains granular, framework-specific skill definitions for runni
 - `e2e-puppeteer-remote`: Puppeteer test container against remote browser on `localhost:3000`.
 
 All skills use `docker compose` directly.
+
+Each `skills/*/SKILL.md` uses a standardized YAML frontmatter metadata block with:
+
+- `name`
+- `description`

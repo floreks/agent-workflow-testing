@@ -1,3 +1,8 @@
+---
+name: e2e-playwright-remote
+description: Run Playwright E2E tests in Docker against a remote browser exposed on localhost:3000.
+---
+
 # e2e-playwright-remote
 
 ## When to use

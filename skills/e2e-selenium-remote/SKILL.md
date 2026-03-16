@@ -1,3 +1,8 @@
+---
+name: e2e-selenium-remote
+description: Run Selenium tests in Docker against a remote Selenium browser exposed on localhost:3000.
+---
+
 # e2e-selenium-remote
 
 ## When to use

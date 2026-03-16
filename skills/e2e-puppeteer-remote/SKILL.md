@@ -1,3 +1,8 @@
+---
+name: e2e-puppeteer-remote
+description: Run Puppeteer tests in Docker against a remote browser exposed on localhost:3000.
+---
+
 # e2e-puppeteer-remote
 
 ## When to use

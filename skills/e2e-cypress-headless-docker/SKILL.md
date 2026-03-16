@@ -1,3 +1,8 @@
+---
+name: e2e-cypress-headless-docker
+description: Run Cypress E2E tests fully in Docker with a headless browser in the Cypress container.
+---
+
 # e2e-cypress-headless-docker
 
 ## When to use

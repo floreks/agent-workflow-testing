@@ -1,3 +1,8 @@
+---
+name: e2e-playwright-headless-docker
+description: Run Playwright E2E tests fully in Docker with a headless browser in the Playwright container.
+---
+
 # e2e-playwright-headless-docker
 
 ## When to use
