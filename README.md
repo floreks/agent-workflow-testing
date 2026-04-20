@@ -1,101 +1,230 @@
 # Agent Workflow Testing
 
-Bootstrap project for verifying changes in a Go + React app with Postgres and an nginx dev proxy.
+A comprehensive bootstrap project for testing agent-driven development workflows in a modern full-stack application. This project provides a complete Go + React application with PostgreSQL database and nginx reverse proxy, designed specifically for validating automated code changes and agent interactions.
 
-## Layout
+## 🏗️ Architecture
 
-- `backend/` Go API server (multi-module with `shared/`).
-- `frontend/` React app (Vite).
-- `nginx/` reverse proxy for `/` (frontend) and `/api` (backend).
+This project demonstrates a typical three-tier web application architecture:
 
-## Dev workflow
+- **`backend/`** - Go 1.25 API server (multi-module architecture with shared modules)
+- **`frontend/`** - React 18.3.1 application built with Vite 7.1.11
+- **`nginx/`** - nginx 1.27 reverse proxy routing `/` to frontend and `/api` to backend
+- **`db/`** - PostgreSQL 16 database with persistent storage
+
+## 🚀 Quick Start
+
+Start the entire application stack with Docker Compose:
 
 ```bash
 docker-compose up --build
 ```
 
-Frontend dependencies are installed inside the container with a dedicated `frontend-node-modules` volume, and the compose file only bind-mounts the frontend sources/config, so `node_modules` is not created on the host.
+The frontend dependencies are automatically installed inside the container using a dedicated `frontend-node-modules` volume. This approach ensures consistent dependency resolution while keeping your host filesystem clean (no `node_modules` directory on your host).
 
-Visit:
+### 🌐 Access Points
 
-- `http://localhost:8088` (nginx proxy)
-- `http://localhost:8080/api/health` (backend direct)
-- `http://localhost:5173` (frontend direct)
+Once running, you can access the application through multiple endpoints:
 
-## API
+- **Main Application**: `http://localhost:8088` (nginx reverse proxy - recommended)
+- **Backend API**: `http://localhost:8080/api/health` (direct backend access)
+- **Frontend Dev Server**: `http://localhost:5173` (direct frontend access - development only)
 
-- `GET /api/health`
-- `GET /api/messages`
-- `POST /api/messages` `{ "content": "hello" }`
+## 🔗 API Endpoints
 
-## Playwright
+The backend provides a RESTful API for message management:
 
-This target starts the stack and stops it afterward:
+| Method | Endpoint | Description | Body |
+|--------|----------|-------------|------|
+| `GET` | `/api/health` | Health check endpoint | - |
+| `GET` | `/api/messages` | Retrieve all messages | - |
+| `POST` | `/api/messages` | Create a new message | `{ "content": "hello" }` |
 
+Example API calls:
+```bash
+# Health check
+curl http://localhost:8088/api/health
+
+# Get all messages  
+curl http://localhost:8088/api/messages
+
+# Create a new message
+curl -X POST http://localhost:8088/api/messages \
+  -H "Content-Type: application/json" \
+  -d '{"content": "Hello from the API!"}'
+```
+
+## 🧪 End-to-End Testing
+
+This project provides comprehensive E2E testing capabilities using multiple testing frameworks. All tests are containerized and can be run in different configurations.
+
+### 🎭 Playwright Testing
+
+Playwright tests use version 1.57.0 and support both local and remote browser execution.
+
+**Local Playwright (with browser in container):**
 ```bash
 make e2e-playwright
 ```
 
-Run Playwright inside Docker:
-
+**Containerized Playwright:**
 ```bash
 make e2e-playwright-in-docker
 ```
 
-Run Playwright against a remote browser already exposed on `localhost:3000`:
-
+**Remote Browser Playwright (recommended for agent environments):**
 ```bash
+# First ensure chrome browser is running on localhost:3000
 make e2e-playwright-remote
 ```
 
-This uses host networking and `PLAYWRIGHT_WS_ENDPOINT=ws://localhost:3000/chrome/playwright`.
+For Docker Compose environments (no make available):
+```bash
+docker-compose up -d --build
+docker-compose --profile e2e-playwright-remote run --rm --no-deps e2e-playwright-remote
+```
 
-## Cypress
+Remote Playwright uses:
+- `PLAYWRIGHT_WS_ENDPOINT=ws://localhost:3000/chrome/playwright`
+- `PLAYWRIGHT_BASE_URL=http://localhost:8088`
 
-This target starts the stack and stops it afterward:
+### 🌲 Cypress Testing
 
+Cypress tests use version 13.13.0 with Chrome browser support.
+
+**Local Cypress (starts and stops stack automatically):**
 ```bash
 make e2e-cypress
 ```
 
-Run Cypress inside Docker:
-
-```bash
+**Containerized Cypress:**
+```bash  
 make e2e-cypress-in-docker
 ```
 
-## Selenium
+The tests run against `http://nginx` within the Docker network for optimal isolation.
 
-This target starts the stack and stops it afterward:
+### 🕷️ Selenium Testing
 
+Selenium tests use version 4.26.0 with standalone Chrome browser support.
+
+**Local Selenium (starts and stops stack automatically):**
 ```bash
 make e2e-selenium
 ```
 
-To run Selenium against a remote browser exposed on `localhost:3000`:
-
+**Remote Browser Selenium:**
 ```bash
 make e2e-selenium-remote
 ```
 
-This uses host networking so the test container can reach both the app and the remote browser. The defaults are `SELENIUM_REMOTE_URL=http://localhost:3000` and `SELENIUM_BASE_URL=http://localhost:8088`.
+For Docker Compose environments:
+```bash
+docker-compose up -d --build
+docker-compose --profile e2e-selenium-remote run --rm --no-deps e2e-selenium-remote  
+```
 
-Override endpoints as needed:
+Remote Selenium configuration:
+- `SELENIUM_REMOTE_URL=http://localhost:3000` (selenium standalone server)
+- `SELENIUM_BASE_URL=http://localhost:8088` (application under test)
 
-- `SELENIUM_REMOTE_URL` (defaults to `http://localhost:3000`)
+The test container uses host networking to reach both the application and the remote browser.
 
-## Puppeteer
+### 🎪 Puppeteer Testing
 
-This target starts the stack and stops it afterward:
+Puppeteer tests use core version 24.36.1 with Chrome/Chromium browser support.
 
+**Local Puppeteer (starts and stops stack automatically):**
 ```bash
 make e2e-puppeteer
 ```
 
-To run Puppeteer against a remote browser exposed on `localhost:3000`:
-
+**Remote Browser Puppeteer:**
 ```bash
 make e2e-puppeteer-remote
 ```
 
-This uses host networking so the test container can reach both the app and the remote browser. The defaults are `PUPPETEER_WS_ENDPOINT=ws://localhost:3000` and `PUPPETEER_BASE_URL=http://localhost:8088`.
+For Docker Compose environments:
+```bash
+docker-compose up -d --build
+docker-compose --profile e2e-puppeteer-remote run --rm --no-deps e2e-puppeteer-remote
+```
+
+Remote Puppeteer configuration:
+- `PUPPETEER_WS_ENDPOINT=ws://localhost:3000` (chromium browser WebSocket)
+- `PUPPETEER_BASE_URL=http://localhost:8088` (application under test)
+
+Uses host networking for seamless communication between test container, application, and remote browser.
+
+## 🤖 Agent Integration
+
+This project is designed specifically for testing automated agent workflows. See [AGENTS.md](AGENTS.md) for detailed information about:
+
+- Agent testing expectations and requirements
+- Remote browser testing protocols
+- Docker Compose commands for agent environments
+- Best practices for agent-driven development
+
+## 📚 Skills Integration
+
+The project includes a comprehensive skills system for various automated tasks:
+
+- **E2E Testing Skills**: Pre-configured skills for running different E2E test suites
+- **Remote Browser Skills**: Specialized skills for remote browser testing scenarios
+- **Agent Workflow Skills**: Tools for validating agent-generated code changes
+
+Explore the `skills/` directory for available automation capabilities.
+
+## 🛠️ Technology Stack
+
+### Frontend
+- **React** 18.3.1 - Modern React with hooks and concurrent features
+- **Vite** 7.1.11 - Fast development server and build tool
+- **Node.js** 25 - JavaScript runtime
+
+### Backend
+- **Go** 1.25 - High-performance API server
+- **PostgreSQL** 16 - Reliable relational database with ACID compliance
+- **pgx/v5** 5.5.5 - Fast PostgreSQL driver for Go
+
+### Infrastructure
+- **nginx** 1.27 - High-performance reverse proxy
+- **Docker** - Containerization for consistent development and deployment
+- **Docker Compose** - Multi-container orchestration
+
+### Testing Tools
+- **Playwright** 1.57.0 - Modern web testing framework
+- **Cypress** 13.13.0 - Developer-friendly E2E testing
+- **Selenium** 4.26.0 - Industry-standard web automation
+- **Puppeteer** 24.36.1 - Chrome DevTools Protocol-based testing
+
+## 🔧 Development Notes
+
+### Volume Management
+- Frontend dependencies use dedicated Docker volumes (`frontend-node-modules`) to avoid conflicts
+- Each testing framework gets its own node_modules volume for isolation
+- Database data persists in the `db-data` volume
+
+### Network Configuration
+- Remote browser tests use `network_mode: host` for direct communication
+- nginx handles routing between frontend and backend services
+- All services communicate within the Docker network for security
+
+### Environment Variables
+Key environment variables for customization:
+- `PLAYWRIGHT_WS_ENDPOINT` - WebSocket endpoint for remote Playwright browser
+- `SELENIUM_REMOTE_URL` - URL for remote Selenium server  
+- `PUPPETEER_WS_ENDPOINT` - WebSocket endpoint for remote Puppeteer browser
+- Database connection variables (DB_HOST, DB_USER, DB_PASSWORD, etc.)
+
+## 📝 Contributing
+
+This project serves as a testing ground for agent-driven development workflows. When contributing:
+
+1. Always add tests for new features or bug fixes
+2. Run the relevant test suites before submitting changes
+3. Follow the established patterns for Docker integration
+4. Consider agent workflow implications for any changes
+
+## 📄 License
+
+This project is designed for testing and educational purposes.
