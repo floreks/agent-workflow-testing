@@ -4,6 +4,7 @@ go 1.25
 
 require (
 	agent-workflow-testing/shared v0.0.0
+	github.com/DATA-DOG/go-sqlmock v1.5.2
 	github.com/jackc/pgx/v5 v5.5.5
 )
 
