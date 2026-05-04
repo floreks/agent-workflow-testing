@@ -121,6 +121,22 @@ li {
   gap: 1rem;
 }
 
+.message {
+  display: grid;
+  gap: 0.3rem;
+}
+
+button.secondary {
+  background: transparent;
+  border: 1px solid #271f16;
+  color: #271f16;
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 li time {
   font-size: 0.8rem;
   color: #6d5b46;
