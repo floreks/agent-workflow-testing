@@ -121,6 +121,21 @@ li {
   gap: 1rem;
 }
 
+.message-meta {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+button.delete {
+  background: #8a2a16;
+}
+
+button.delete:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 li time {
   font-size: 0.8rem;
   color: #6d5b46;
