@@ -7,6 +7,7 @@ export default function App() {
   const [messages, setMessages] = useState([]);
   const [content, setContent] = useState("");
   const [error, setError] = useState("");
+  const [deleting, setDeleting] = useState(new Set());
 
   const loadMessages = async () => {
     try {
@@ -65,6 +66,32 @@ export default function App() {
     }
   };
 
+  const deleteMessage = async (id) => {
+    setError("");
+    setDeleting((prev) => new Set(prev).add(id));
+
+    try {
+      const res = await fetch(`${apiBase}/api/messages/${id}`, {
+        method: "DELETE"
+      });
+
+      if (!res.ok) {
+        const fallback = res.status === 404 ? "Message not found" : "Failed to delete message";
+        throw new Error(fallback);
+      }
+
+      await loadMessages();
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setDeleting((prev) => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
+    }
+  };
+
   return (
     <div className="app">
       <header>
@@ -98,9 +125,20 @@ export default function App() {
             <li className="empty">No messages yet.</li>
           ) : (
             messages?.map((msg) => (
-              <li key={msg.id}>
-                <span>{msg.content}</span>
-                <time>{new Date(msg.createdAt).toLocaleString()}</time>
+              <li key={msg.id} data-message-id={msg.id}>
+                <div className="message">
+                  <span>{msg.content}</span>
+                  <time>{new Date(msg.createdAt).toLocaleString()}</time>
+                </div>
+                <button
+                  type="button"
+                  className="danger"
+                  onClick={() => deleteMessage(msg.id)}
+                  disabled={deleting.has(msg.id)}
+                  aria-label={`Delete message ${msg.id}`}
+                >
+                  {deleting.has(msg.id) ? "Deleting..." : "Delete"}
+                </button>
               </li>
             ))
           )}
