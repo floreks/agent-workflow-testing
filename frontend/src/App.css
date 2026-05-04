@@ -121,6 +121,26 @@ li {
   gap: 1rem;
 }
 
+.message {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.message-content {
+  font-weight: 600;
+}
+
+button.delete {
+  background: transparent;
+  border: 1px solid #d6c8b6;
+  color: #271f16;
+}
+
+button.delete:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 li time {
   font-size: 0.8rem;
   color: #6d5b46;
