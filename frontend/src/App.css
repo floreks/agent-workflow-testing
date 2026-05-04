@@ -121,6 +121,28 @@ li {
   gap: 1rem;
 }
 
+.message__body {
+  display: grid;
+  gap: 0.25rem;
+  flex: 1;
+}
+
+.message__content {
+  overflow-wrap: anywhere;
+}
+
+.message__delete {
+  background: transparent;
+  color: #8a2a16;
+  border: 1px solid rgba(138, 42, 22, 0.25);
+  padding: 0.5rem 0.9rem;
+}
+
+.message__delete:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 li time {
   font-size: 0.8rem;
   color: #6d5b46;
