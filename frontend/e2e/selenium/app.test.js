@@ -58,3 +58,37 @@ test("can post a message and see it listed", async () => {
     await driver.quit();
   }
 });
+
+test("can delete a message", async () => {
+  const driver = await createDriver();
+
+  try {
+    const message = `Selenium delete ${Date.now()}`;
+
+    await driver.get(`${baseUrl}/`);
+    const input = await driver.wait(
+      until.elementLocated(By.css("input[placeholder=\"What should the agent verify?\"]")),
+      10_000
+    );
+    await input.sendKeys(message);
+    const button = await driver.findElement(By.css("button[type=\"submit\"]"));
+    await button.click();
+
+    const list = await driver.findElement(By.css("ul"));
+    await driver.wait(until.elementTextContains(list, message), 10_000);
+
+    const item = await driver.wait(
+      until.elementLocated(By.xpath(`//li[contains(., ${JSON.stringify(message)})]`)),
+      10_000
+    );
+    const deleteButton = await item.findElement(By.css("button.delete"));
+    await deleteButton.click();
+
+    await driver.wait(async () => {
+      const text = await list.getText();
+      return !text.includes(message);
+    }, 10_000);
+  } finally {
+    await driver.quit();
+  }
+});
