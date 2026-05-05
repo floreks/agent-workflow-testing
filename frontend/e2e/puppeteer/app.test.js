@@ -58,3 +58,49 @@ test("can post a message and see it listed", async () => {
     await browser.close();
   }
 });
+
+test("can delete a message", async () => {
+  const browser = await createBrowser();
+  const page = await browser.newPage();
+
+  try {
+    const message = `Puppeteer delete ${Date.now()}`;
+
+    await page.goto(`${baseUrl}/`, { waitUntil: "domcontentloaded" });
+    await page.waitForSelector("input[placeholder=\"What should the agent verify?\"]", {
+      timeout: 10_000
+    });
+    await page.type("input[placeholder=\"What should the agent verify?\"]", message);
+    await page.click("button[type=\"submit\"]");
+
+    await page.waitForFunction(
+      (text) => {
+        const list = document.querySelector("ul");
+        return list && list.textContent && list.textContent.includes(text);
+      },
+      { timeout: 10_000 },
+      message
+    );
+
+    await page.evaluate((text) => {
+      const items = Array.from(document.querySelectorAll("li"));
+      const item = items.find((node) => (node.textContent || "").includes(text));
+      if (!item) throw new Error("item not found");
+      const button = item.querySelector("button.delete");
+      if (!button) throw new Error("delete button not found");
+      button.click();
+    }, message);
+
+    await page.waitForFunction(
+      (text) => {
+        const items = Array.from(document.querySelectorAll("li"));
+        return !items.some((node) => (node.textContent || "").includes(text));
+      },
+      { timeout: 10_000 },
+      message
+    );
+  } finally {
+    await page.close();
+    await browser.close();
+  }
+});
