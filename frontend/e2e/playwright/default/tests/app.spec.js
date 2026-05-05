@@ -18,3 +18,19 @@ test("can post a message and see it listed", async ({ page }) => {
   const list = page.getByRole("list");
   await expect(list).toContainText(message, { timeout: 10_000 });
 });
+
+test("can delete a message", async ({ page }) => {
+  const message = `Delete me ${Date.now()}`;
+
+  await page.goto("/");
+  await page.getByPlaceholder("What should the agent verify?").fill(message);
+  await page.getByRole("button", { name: "Send" }).click();
+
+  const list = page.getByRole("list");
+  await expect(list).toContainText(message, { timeout: 10_000 });
+
+  const messageItem = page.locator("li", { hasText: message });
+  await messageItem.getByRole("button", { name: "Delete" }).click();
+
+  await expect(messageItem).toBeHidden({ timeout: 10_000 });
+});
