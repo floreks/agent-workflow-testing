@@ -118,12 +118,41 @@ li {
   border-radius: 14px;
   display: flex;
   justify-content: space-between;
+  align-items: center;
   gap: 1rem;
+}
+
+.message-content {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  flex: 1;
+  align-items: center;
 }
 
 li time {
   font-size: 0.8rem;
   color: #6d5b46;
+}
+
+.delete-btn {
+  padding: 0.5rem 1rem;
+  font-size: 0.85rem;
+  background: #8a2a16;
+  color: #fff;
+  border-radius: 999px;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.delete-btn:hover {
+  background: #6d1f10;
+}
+
+.delete-btn:active {
+  background: #5a1a0d;
 }
 
 .empty {
@@ -148,5 +177,11 @@ li time {
 
   li {
     flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .message-content {
+    flex-direction: column;
+    align-items: flex-start;
   }
 }
