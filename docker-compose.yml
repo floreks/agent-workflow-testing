@@ -29,7 +29,7 @@ services:
     depends_on:
     - db
     ports:
-    - "8080:8080"
+    - "${BACKEND_HOST_PORT:-8080}:8080"
 
   frontend:
     build:
@@ -59,7 +59,7 @@ services:
       backend:
         condition: service_healthy
     ports:
-    - "8088:80"
+    - "${NGINX_HOST_PORT:-8088}:80"
 
   playwright:
     image: mcr.microsoft.com/playwright:v1.57.0
