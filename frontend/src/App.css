@@ -104,6 +104,21 @@ button {
   cursor: pointer;
 }
 
+button:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.link {
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: #271f16;
+  text-decoration: underline;
+  cursor: pointer;
+  font: inherit;
+}
+
 ul {
   list-style: none;
   padding: 0;
@@ -119,6 +134,10 @@ li {
   display: flex;
   justify-content: space-between;
   gap: 1rem;
+}
+
+li span {
+  flex: 1;
 }
 
 li time {

@@ -4,10 +4,14 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
+	"errors"
+	"io"
 	"log"
 	"net/http"
 	"os"
 	"os/signal"
+	"strconv"
+	"strings"
 	"syscall"
 	"time"
 
@@ -46,6 +50,7 @@ func main() {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/api/health", app.handleHealth)
 	mux.HandleFunc("/api/messages", app.handleMessages)
+	mux.HandleFunc("/api/messages/", app.handleMessageByID)
 
 	addr := getenv("APP_ADDR", ":8080")
 	server := &http.Server{
@@ -101,6 +106,42 @@ func (s *server) handleMessages(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func (s *server) handleMessageByID(w http.ResponseWriter, r *http.Request) {
+	// Expected: /api/messages/{id}
+	idStr := strings.TrimPrefix(r.URL.Path, "/api/messages/")
+	if idStr == "" || strings.Contains(idStr, "/") {
+		http.NotFound(w, r)
+		return
+	}
+	if r.Method != http.MethodDelete {
+		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	id, err := strconv.Atoi(idStr)
+	if err != nil || id <= 0 {
+		http.Error(w, "invalid id", http.StatusBadRequest)
+		return
+	}
+
+	res, err := s.db.ExecContext(r.Context(), `DELETE FROM messages WHERE id = $1`, id)
+	if err != nil {
+		http.Error(w, "delete failed", http.StatusInternalServerError)
+		return
+	}
+	rows, err := res.RowsAffected()
+	if err != nil {
+		http.Error(w, "delete failed", http.StatusInternalServerError)
+		return
+	}
+	if rows == 0 {
+		http.NotFound(w, r)
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
+}
+
 func (s *server) handleListMessages(w http.ResponseWriter, r *http.Request) {
 	rows, err := s.db.QueryContext(r.Context(), `SELECT id, content, created_at FROM messages ORDER BY created_at DESC LIMIT 20`)
 	if err != nil {
@@ -130,7 +171,13 @@ func (s *server) handleCreateMessage(w http.ResponseWriter, r *http.Request) {
 	var payload struct {
 		Content string `json:"content"`
 	}
-	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
+	dec := json.NewDecoder(r.Body)
+	dec.DisallowUnknownFields()
+	if err := dec.Decode(&payload); err != nil {
+		http.Error(w, "invalid json", http.StatusBadRequest)
+		return
+	}
+	if err := ensureEOF(dec); err != nil {
 		http.Error(w, "invalid json", http.StatusBadRequest)
 		return
 	}
@@ -155,6 +202,18 @@ func writeJSON(w http.ResponseWriter, status int, payload any) {
 	if err := json.NewEncoder(w).Encode(payload); err != nil {
 		log.Printf("write json error: %v", err)
 	}
+}
+
+func ensureEOF(dec *json.Decoder) error {
+	// Ensure there's no trailing junk after the first JSON value.
+	var extra any
+	if err := dec.Decode(&extra); err != nil {
+		if errors.Is(err, io.EOF) {
+			return nil
+		}
+		return err
+	}
+	return errors.New("unexpected trailing json")
 }
 
 func logRequests(next http.Handler) http.Handler {
