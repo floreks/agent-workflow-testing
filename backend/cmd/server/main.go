@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strconv"
 	"syscall"
 	"time"
 
@@ -96,9 +97,44 @@ func (s *server) handleMessages(w http.ResponseWriter, r *http.Request) {
 		s.handleListMessages(w, r)
 	case http.MethodPost:
 		s.handleCreateMessage(w, r)
+	case http.MethodDelete:
+		s.handleDeleteMessage(w, r)
 	default:
 		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
 	}
+}
+
+func (s *server) handleDeleteMessage(w http.ResponseWriter, r *http.Request) {
+	idStr := r.URL.Query().Get("id")
+	if idStr == "" {
+		http.Error(w, "id query parameter required", http.StatusBadRequest)
+		return
+	}
+
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		http.Error(w, "invalid id parameter", http.StatusBadRequest)
+		return
+	}
+
+	result, err := s.db.ExecContext(r.Context(), `DELETE FROM messages WHERE id = $1`, id)
+	if err != nil {
+		http.Error(w, "delete failed", http.StatusInternalServerError)
+		return
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		http.Error(w, "failed to check affected rows", http.StatusInternalServerError)
+		return
+	}
+
+	if rowsAffected == 0 {
+		http.Error(w, "message not found", http.StatusNotFound)
+		return
+	}
+
+	writeJSON(w, http.StatusOK, map[string]string{"status": "deleted"})
 }
 
 func (s *server) handleListMessages(w http.ResponseWriter, r *http.Request) {

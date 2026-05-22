@@ -130,6 +130,29 @@ li time {
   color: #6d5b46;
 }
 
+.message-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.delete-btn {
+  background: #ff4d4f;
+  color: #fff;
+  border: none;
+  padding: 0.4rem 0.8rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 600;
+  align-self: center;
+  transition: background 0.2s ease;
+}
+
+.delete-btn:hover {
+  background: #ff7875;
+}
+
 .error {
   color: #8a2a16;
   margin-top: 0.75rem;

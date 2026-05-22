@@ -16,4 +16,19 @@ describe("Message board", () => {
     cy.contains("button", "Send").click();
     cy.get("ul").should("contain.text", message);
   });
+
+  it("can delete a message", () => {
+    const message = `Cypress Delete Test ${Date.now()}`;
+
+    cy.visit("/");
+    cy.get('input[placeholder="What should the agent verify?"]').type(message);
+    cy.contains("button", "Send").click();
+    cy.get("ul").should("contain.text", message);
+
+    // Click the delete button specifically for this message
+    cy.get("li").contains(message).parents("li").find(".delete-btn").click();
+
+    // The message should no longer exist
+    cy.get("ul").should("not.contain.text", message);
+  });
 });
