@@ -135,6 +135,24 @@ li time {
   margin-top: 0.75rem;
 }
 
+.delete-btn {
+  padding: 0.3rem 0.75rem;
+  border-radius: 999px;
+  border: 1px solid #d6c8b6;
+  background: transparent;
+  color: #8a2a16;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  flex-shrink: 0;
+  align-self: center;
+}
+
+.delete-btn:hover {
+  background: #ffe0d6;
+  border-color: #8a2a16;
+}
+
 @media (max-width: 720px) {
   header {
     flex-direction: column;
