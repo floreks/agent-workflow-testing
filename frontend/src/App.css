@@ -119,6 +119,26 @@ li {
   display: flex;
   justify-content: space-between;
   gap: 1rem;
+  align-items: flex-start;
+}
+
+.message-body {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  flex: 1;
+}
+
+button.delete {
+  background: transparent;
+  border: 1px solid #d6c8b6;
+  color: #271f16;
+  padding: 0.5rem 0.9rem;
+}
+
+button.delete:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 li time {
@@ -147,6 +167,10 @@ li time {
   }
 
   li {
+    flex-direction: column;
+  }
+
+  .message-body {
     flex-direction: column;
   }
 }
