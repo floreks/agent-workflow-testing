@@ -27,6 +27,7 @@ Visit:
 - `GET /api/health`
 - `GET /api/messages`
 - `POST /api/messages` `{ "content": "hello" }`
+- `DELETE /api/messages/{id}`
 
 ## Playwright
 
