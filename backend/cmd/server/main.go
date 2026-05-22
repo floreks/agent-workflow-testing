@@ -8,6 +8,8 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strconv"
+	"strings"
 	"syscall"
 	"time"
 
@@ -46,6 +48,8 @@ func main() {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/api/health", app.handleHealth)
 	mux.HandleFunc("/api/messages", app.handleMessages)
+	// Trailing-slash variant is required for subpaths like /api/messages/{id}.
+	mux.HandleFunc("/api/messages/", app.handleMessages)
 
 	addr := getenv("APP_ADDR", ":8080")
 	server := &http.Server{
@@ -91,6 +95,12 @@ func (s *server) handleHealth(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *server) handleMessages(w http.ResponseWriter, r *http.Request) {
+	// Support DELETE /api/messages/{id} without introducing a full router.
+	if r.Method == http.MethodDelete {
+		s.handleDeleteMessage(w, r)
+		return
+	}
+
 	switch r.Method {
 	case http.MethodGet:
 		s.handleListMessages(w, r)
@@ -99,6 +109,43 @@ func (s *server) handleMessages(w http.ResponseWriter, r *http.Request) {
 	default:
 		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
 	}
+}
+
+func (s *server) handleDeleteMessage(w http.ResponseWriter, r *http.Request) {
+	// Expected path: /api/messages/{id}
+	path := strings.TrimPrefix(r.URL.Path, "/api/messages/")
+	if path == "" {
+		http.Error(w, "missing message id", http.StatusBadRequest)
+		return
+	}
+	if strings.Contains(path, "/") {
+		http.Error(w, "invalid message id", http.StatusBadRequest)
+		return
+	}
+
+	id, err := strconv.Atoi(path)
+	if err != nil || id <= 0 {
+		http.Error(w, "invalid message id", http.StatusBadRequest)
+		return
+	}
+
+	res, err := s.db.ExecContext(r.Context(), `DELETE FROM messages WHERE id = $1`, id)
+	if err != nil {
+		http.Error(w, "delete failed", http.StatusInternalServerError)
+		return
+	}
+
+	rows, err := res.RowsAffected()
+	if err != nil {
+		http.Error(w, "delete failed", http.StatusInternalServerError)
+		return
+	}
+	if rows == 0 {
+		http.Error(w, "not found", http.StatusNotFound)
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
 }
 
 func (s *server) handleListMessages(w http.ResponseWriter, r *http.Request) {
