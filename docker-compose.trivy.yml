@@ -1,0 +1,6 @@
+services:
+  trivy:
+    image: aquasec/trivy:latest
+    volumes:
+      - .:/project
+    command: fs --scanners vuln /project
