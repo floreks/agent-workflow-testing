@@ -1,3 +1,7 @@
 .idea/
 frontend/node_modules/
 frontend/e2e/output/
+# Trivy cache/output
+.trivy-cache/
+trivy-out/
+
