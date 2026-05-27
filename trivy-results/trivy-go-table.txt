@@ -1,0 +1,32 @@
+
+backend/go.mod (gomod)
+======================
+Total: 6 (UNKNOWN: 0, LOW: 1, MEDIUM: 2, HIGH: 1, CRITICAL: 2)
+
+┌─────────────────────────┬────────────────┬──────────┬────────┬───────────────────┬───────────────┬──────────────────────────────────────────────────────────────┐
+│         Library         │ Vulnerability  │ Severity │ Status │ Installed Version │ Fixed Version │                            Title                             │
+├─────────────────────────┼────────────────┼──────────┼────────┼───────────────────┼───────────────┼──────────────────────────────────────────────────────────────┤
+│ github.com/jackc/pgx/v5 │ CVE-2026-33816 │ CRITICAL │ fixed  │ 5.5.5             │ 5.9.0         │ github.com/jackc/pgx/v5: github.com/jackc/pgx: Memory-safety │
+│                         │                │          │        │                   │               │ vulnerability                                                │
+│                         │                │          │        │                   │               │ https://avd.aquasec.com/nvd/cve-2026-33816                   │
+│                         ├────────────────┼──────────┤        │                   ├───────────────┼──────────────────────────────────────────────────────────────┤
+│                         │ CVE-2026-41889 │ LOW      │        │                   │ 5.9.2         │ github.com/jackc/pgx: golang: pgx: SQL injection via         │
+│                         │                │          │        │                   │               │ specific SQL query conditions                                │
+│                         │                │          │        │                   │               │ https://avd.aquasec.com/nvd/cve-2026-41889                   │
+├─────────────────────────┼────────────────┼──────────┤        ├───────────────────┼───────────────┼──────────────────────────────────────────────────────────────┤
+│ golang.org/x/crypto     │ CVE-2024-45337 │ CRITICAL │        │ 0.17.0            │ 0.31.0        │ Applications and libraries which misuse                      │
+│                         │                │          │        │                   │               │ connection.serverAuthenticate ...                            │
+│                         │                │          │        │                   │               │ https://avd.aquasec.com/nvd/cve-2024-45337                   │
+│                         ├────────────────┼──────────┤        │                   ├───────────────┼──────────────────────────────────────────────────────────────┤
+│                         │ CVE-2025-22869 │ HIGH     │        │                   │ 0.35.0        │ SSH servers which implement file transfer protocols are      │
+│                         │                │          │        │                   │               │ vulnerable to ......                                         │
+│                         │                │          │        │                   │               │ https://avd.aquasec.com/nvd/cve-2025-22869                   │
+│                         ├────────────────┼──────────┤        │                   ├───────────────┼──────────────────────────────────────────────────────────────┤
+│                         │ CVE-2025-47914 │ MEDIUM   │        │                   │ 0.45.0        │ SSH Agent servers do not validate the size of messages when  │
+│                         │                │          │        │                   │               │ processing...                                                │
+│                         │                │          │        │                   │               │ https://avd.aquasec.com/nvd/cve-2025-47914                   │
+│                         ├────────────────┤          │        │                   │               ├──────────────────────────────────────────────────────────────┤
+│                         │ CVE-2025-58181 │          │        │                   │               │ SSH servers parsing GSSAPI authentication requests do not    │
+│                         │                │          │        │                   │               │ validate the ...                                             │
+│                         │                │          │        │                   │               │ https://avd.aquasec.com/nvd/cve-2025-58181                   │
+└─────────────────────────┴────────────────┴──────────┴────────┴───────────────────┴───────────────┴──────────────────────────────────────────────────────────────┘
