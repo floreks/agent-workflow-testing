@@ -72,3 +72,16 @@ All findings were associated with `backend/go.mod` dependencies.
 - This report focuses on **Go dependency CVEs** as detected by Trivy’s `gomod` analyzer.
 - Trivy’s `fs` scan may also detect vulnerabilities for other ecosystems (e.g. `npm`) if lockfiles are present; those are **out of scope** for this Go-focused report.
 - The Trivy vulnerability database was downloaded at scan time (see Trivy logs in the scan output).
+
+## Trivy (Docker Compose)
+
+To reproduce the Go dependency scan via Docker Compose:
+
+```bash
+docker compose -f docker-compose.trivy.yml run --rm trivy-go
+```
+
+This writes output to:
+- `trivy-results/trivy-go-table.txt`
+
+(See `docker-compose.trivy.yml` for the exact Trivy invocation.)

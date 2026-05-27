@@ -1,0 +1,17 @@
+services:
+  trivy-go:
+    image: aquasec/trivy:0.54.1
+    working_dir: /workspace
+    volumes:
+      - ./:/workspace
+    command:
+      - fs
+      - --scanners
+      - vuln
+      - --pkg-types
+      - library
+      - --format
+      - table
+      - --output
+      - trivy-results/trivy-go-table.txt
+      - .
