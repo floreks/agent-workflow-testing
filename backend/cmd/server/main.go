@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strconv"
 	"syscall"
 	"time"
 
@@ -46,6 +47,7 @@ func main() {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/api/health", app.handleHealth)
 	mux.HandleFunc("/api/messages", app.handleMessages)
+	mux.HandleFunc("DELETE /api/messages/{id}", app.handleDeleteMessage)
 
 	addr := getenv("APP_ADDR", ":8080")
 	server := &http.Server{
@@ -147,6 +149,36 @@ func (s *server) handleCreateMessage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	writeJSON(w, http.StatusCreated, msg)
+}
+
+func (s *server) handleDeleteMessage(w http.ResponseWriter, r *http.Request) {
+	idStr := r.PathValue("id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		http.Error(w, "invalid id", http.StatusBadRequest)
+		return
+	}
+
+	result, err := s.db.ExecContext(r.Context(), "DELETE FROM messages WHERE id = $1", id)
+	if err != nil {
+		log.Printf("delete error: %v", err)
+		http.Error(w, "delete failed", http.StatusInternalServerError)
+		return
+	}
+
+	rows, err := result.RowsAffected()
+	if err != nil {
+		log.Printf("rows affected error: %v", err)
+		http.Error(w, "delete failed", http.StatusInternalServerError)
+		return
+	}
+
+	if rows == 0 {
+		http.Error(w, "message not found", http.StatusNotFound)
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
 }
 
 func writeJSON(w http.ResponseWriter, status int, payload any) {
