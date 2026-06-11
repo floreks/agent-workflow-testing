@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: agent-workflow-testing
+  namespace: agent-workflow-testing
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: agent-workflow-testing
+  template:
+    metadata:
+      labels:
+        app: agent-workflow-testing
+    spec:
+      containers:
+        - name: web
+          image: nginx:1.27-alpine
+          ports:
+            - containerPort: 80
