@@ -22,6 +22,10 @@ Visit:
 - `http://localhost:8080/api/health` (backend direct)
 - `http://localhost:5173` (frontend direct)
 
+## Plural GitOps
+
+Plural GitOps manifests and the included `GitRepository` / `ServiceDeployment` CRDs are documented in `GITOPS.md`.
+
 ## API
 
 - `GET /api/health`
