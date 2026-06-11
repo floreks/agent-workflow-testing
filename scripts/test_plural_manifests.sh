@@ -40,6 +40,13 @@ grep -q '^### `GitRepository`$' "$gitops_doc"
 grep -q '^### `ServiceDeployment`$' "$gitops_doc"
 grep -q '^Defined in `manifests/repositories/agent-workflow-testing-source.yaml`\.$' "$gitops_doc"
 grep -q '^Defined in `manifests/services/agent-workflow-testing.yaml`\.$' "$gitops_doc"
+grep -q '^### `Cluster`$' "$gitops_doc"
+grep -q '^### `GlobalService`$' "$gitops_doc"
+grep -q '^### `ServiceContext`$' "$gitops_doc"
+grep -q '^### `InfrastructureStack`$' "$gitops_doc"
+grep -q '^### `ScmConnection`$' "$gitops_doc"
+grep -q '^### `Observer`$' "$gitops_doc"
+grep -q '^### `Pipeline`$' "$gitops_doc"
 grep -q '^Plural GitOps manifests and the included `GitRepository` / `ServiceDeployment` CRDs are documented in `GITOPS.md`\.$' README.md
 
 echo 'Plural GitOps manifests and documentation look correct.'
