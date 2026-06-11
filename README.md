@@ -107,3 +107,7 @@ A minimal Plural GitOps example now lives under `manifests/`:
 - `manifests/plural/git-repository.yaml` registers this repository as a Plural `GitRepository`.
 - `manifests/plural/service-deployment.yaml` deploys the raw Kubernetes manifests from `manifests/app`.
 - `manifests/app/` contains a simple namespace, deployment, and service workload.
+
+The example intentionally uses a `ServiceDeployment` because it targets a single cluster (`mgmt`).
+Switch to a `GlobalService` only when you want the same workload replicated across every matching
+cluster.

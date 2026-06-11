@@ -28,6 +28,10 @@ grep -Eq '^kind:[[:space:]]*ServiceDeployment$' manifests/plural/service-deploym
 grep -Eq 'cluster:[[:space:]]*mgmt$' manifests/plural/service-deployment.yaml
 grep -Eq 'ref:[[:space:]]*master$' manifests/plural/service-deployment.yaml
 grep -Eq 'folder:[[:space:]]*manifests/app$' manifests/plural/service-deployment.yaml
+grep -Eq 'right fit' manifests/README.md
+grep -Eq 'GlobalService' manifests/README.md
+grep -Eq 'single cluster \(`mgmt`\)' README.md
+grep -Eq 'GlobalService' README.md
 
 grep -Eq '^kind:[[:space:]]*Namespace$' manifests/app/namespace.yaml
 grep -Eq '^kind:[[:space:]]*Deployment$' manifests/app/deployment.yaml
