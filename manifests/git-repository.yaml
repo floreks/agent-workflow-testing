@@ -1,0 +1,6 @@
+apiVersion: deployments.plural.sh/v1alpha1
+kind: GitRepository
+metadata:
+  name: agent-workflow-testing
+spec:
+  url: https://github.com/floreks/agent-workflow-testing.git
