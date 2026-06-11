@@ -99,3 +99,11 @@ make e2e-puppeteer-remote
 ```
 
 This uses host networking so the test container can reach both the app and the remote browser. The defaults are `PUPPETEER_WS_ENDPOINT=ws://localhost:3000` and `PUPPETEER_BASE_URL=http://localhost:8088`.
+
+## Plural GitOps manifests
+
+A minimal Plural GitOps example now lives under `manifests/`:
+
+- `manifests/plural/git-repository.yaml` registers this repository as a Plural `GitRepository`.
+- `manifests/plural/service-deployment.yaml` deploys the raw Kubernetes manifests from `manifests/app`.
+- `manifests/app/` contains a simple namespace, deployment, and service workload.

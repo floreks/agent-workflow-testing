@@ -1,0 +1,13 @@
+apiVersion: deployments.plural.sh/v1alpha1
+kind: ServiceDeployment
+metadata:
+  name: agent-workflow-testing
+  namespace: infra
+spec:
+  cluster: mgmt
+  repositoryRef:
+    name: agent-workflow-testing
+  git:
+    ref: master
+    folder: manifests/app
+  namespace: agent-workflow-testing

@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: agent-workflow-testing
+  namespace: agent-workflow-testing
+spec:
+  selector:
+    app: agent-workflow-testing
+  ports:
+    - name: http
+      port: 80
+      targetPort: 80

@@ -15,6 +15,10 @@ down:
 test-skills-format:
 	./scripts/validate-skill-format.sh
 
+.PHONY: test-plural-manifests
+test-plural-manifests:
+	./scripts/test-plural-manifests.sh
+
 ## Local E2E
 # Require node and npm to be available on the host.
 
