@@ -45,6 +45,7 @@ func main() {
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/api/health", app.handleHealth)
+	mux.HandleFunc("/api/joke", app.handleJoke)
 	mux.HandleFunc("/api/messages", app.handleMessages)
 
 	addr := getenv("APP_ADDR", ":8080")
@@ -85,6 +86,20 @@ func (s *server) handleHealth(w http.ResponseWriter, r *http.Request) {
 	payload := map[string]string{
 		"status":  "ok",
 		"version": version.AppVersion,
+	}
+
+	writeJSON(w, http.StatusOK, payload)
+}
+
+func (s *server) handleJoke(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	payload := map[string]string{
+		"setup":     "Why do programmers prefer dark mode?",
+		"punchline": "Because light attracts bugs!",
 	}
 
 	writeJSON(w, http.StatusOK, payload)
