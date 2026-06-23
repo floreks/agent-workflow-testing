@@ -1,5 +1,5 @@
 # Happy
 
-Why do programmers prefer dark mode?
+Why did the programmer quit his job?
 
-Because light attracts bugs.
+Because he didn't get arrays.
