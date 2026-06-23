@@ -7,6 +7,8 @@ export default function App() {
   const [messages, setMessages] = useState([]);
   const [content, setContent] = useState("");
   const [error, setError] = useState("");
+  const [jokes, setJokes] = useState([]);
+  const [currentJoke, setCurrentJoke] = useState(null);
 
   const loadMessages = async () => {
     try {
@@ -19,6 +21,26 @@ export default function App() {
     } catch (err) {
       setError(err.message);
     }
+  };
+
+  const loadJokes = async () => {
+    try {
+      const res = await fetch(`${apiBase}/api/jokes`);
+      if (!res.ok) throw new Error("Failed to load jokes");
+      const data = await res.json();
+      setJokes(data);
+      if (data && data.length > 0) {
+        setCurrentJoke(data[Math.floor(Math.random() * data.length)]);
+      }
+    } catch (_err) {
+      // jokes are optional, silently ignore
+    }
+  };
+
+  const randomJoke = () => {
+    if (jokes.length === 0) return;
+    const idx = Math.floor(Math.random() * jokes.length);
+    setCurrentJoke(jokes[idx]);
   };
 
   useEffect(() => {
@@ -34,6 +56,7 @@ export default function App() {
 
     load();
     loadMessages();
+    loadJokes();
   }, []);
 
   const submitMessage = async (event) => {
@@ -76,6 +99,21 @@ export default function App() {
           {health.status}
         </div>
       </header>
+
+      <section className="panel">
+        <h2>😂 Joke of the Moment</h2>
+        {currentJoke ? (
+          <div>
+            <p><strong>{currentJoke.setup}</strong></p>
+            <p><em>{currentJoke.punchline}</em></p>
+          </div>
+        ) : (
+          <p className="empty">Loading jokes…</p>
+        )}
+        <button onClick={randomJoke} style={{ marginTop: "0.5rem" }}>
+          Another one 🎲
+        </button>
+      </section>
 
       <section className="panel">
         <h2>Post a message</h2>
