@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"log"
+	"math/rand"
 	"net/http"
 	"os"
 	"os/signal"
@@ -46,6 +47,7 @@ func main() {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/api/health", app.handleHealth)
 	mux.HandleFunc("/api/messages", app.handleMessages)
+	mux.HandleFunc("/api/jokes", app.handleJokes)
 
 	addr := getenv("APP_ADDR", ":8080")
 	server := &http.Server{
@@ -147,6 +149,23 @@ func (s *server) handleCreateMessage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	writeJSON(w, http.StatusCreated, msg)
+}
+
+var jokes = []string{
+	"Why do programmers prefer dark mode? Because light attracts bugs.",
+	"A SQL query walks into a bar, walks up to two tables and asks: 'Can I join you?'",
+	"Why do Java developers wear glasses? Because they don't C#.",
+	"How many programmers does it take to change a light bulb? None – that's a hardware problem.",
+	"Why was the JavaScript developer sad? Because he didn't know how to 'null' his feelings.",
+}
+
+func (s *server) handleJokes(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	joke := jokes[rand.Intn(len(jokes))]
+	writeJSON(w, http.StatusOK, map[string]string{"joke": joke})
 }
 
 func writeJSON(w http.ResponseWriter, status int, payload any) {

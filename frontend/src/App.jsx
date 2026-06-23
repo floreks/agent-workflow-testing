@@ -7,6 +7,8 @@ export default function App() {
   const [messages, setMessages] = useState([]);
   const [content, setContent] = useState("");
   const [error, setError] = useState("");
+  const [joke, setJoke] = useState("");
+  const [jokeError, setJokeError] = useState("");
 
   const loadMessages = async () => {
     try {
@@ -35,6 +37,18 @@ export default function App() {
     load();
     loadMessages();
   }, []);
+
+  const fetchJoke = async () => {
+    setJokeError("");
+    try {
+      const res = await fetch(`${apiBase}/api/jokes`);
+      if (!res.ok) throw new Error("Failed to fetch joke");
+      const data = await res.json();
+      setJoke(data.joke);
+    } catch (err) {
+      setJokeError(err.message);
+    }
+  };
 
   const submitMessage = async (event) => {
     event.preventDefault();
@@ -89,6 +103,13 @@ export default function App() {
           <button type="submit">Send</button>
         </form>
         {error ? <p className="error">{error}</p> : null}
+      </section>
+
+      <section className="panel">
+        <h2>Random joke</h2>
+        <button onClick={fetchJoke}>Tell me a joke</button>
+        {joke ? <p>{joke}</p> : null}
+        {jokeError ? <p className="error">{jokeError}</p> : null}
       </section>
 
       <section className="panel">
