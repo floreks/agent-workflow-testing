@@ -46,6 +46,7 @@ func main() {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/api/health", app.handleHealth)
 	mux.HandleFunc("/api/messages", app.handleMessages)
+	mux.HandleFunc("/api/jokes", app.handleJokes)
 
 	addr := getenv("APP_ADDR", ":8080")
 	server := &http.Server{
