@@ -14,4 +14,11 @@ Here is a programming joke to brighten your day:
 >
 > *Those who understand binary, and those who don't.* 🤖
 
+---
+
+## A Classic Query
+> **An SQL query walks into a bar, walks up to two tables and asks:**
+>
+> *"Can I join you?"* 🍺
+
 Have a happy coding day! 🚀
