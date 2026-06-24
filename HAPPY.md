@@ -1,5 +1,5 @@
 # HAPPY
 
-Why did the developer go broke?
+Why don’t skeletons fight each other?
 
-Because they used up all their cache.
+They don’t have the guts.
