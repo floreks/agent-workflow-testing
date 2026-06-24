@@ -1,4 +1,6 @@
 services:
+
+  # ── Database ──────────────────────────────────────────────────────────────
   db:
     image: postgres:16
     environment:
@@ -6,16 +8,26 @@ services:
       POSTGRES_PASSWORD: app
       POSTGRES_DB: app
     volumes:
-    - db-data:/var/lib/postgresql/data
+      - db-data:/var/lib/postgresql/data
     ports:
-    - "5432:5432"
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U app -d app"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
+  # ── Backend ───────────────────────────────────────────────────────────────
   backend:
     build:
       context: .
       dockerfile: backend/Dockerfile
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/api/health"]
+      test: ["CMD", "curl", "-fsS", "http://localhost:8080/api/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
     environment:
       DB_HOST: db
       DB_PORT: 5432
@@ -23,93 +35,106 @@ services:
       DB_PASSWORD: app
       DB_NAME: app
       DB_SSLMODE: disable
-      APP_ADDR: :8080
+      APP_ADDR: ":8080"
     volumes:
-    - ./:/app
+      - ./:/app
     depends_on:
-    - db
+      db:
+        condition: service_healthy
     ports:
-    - "8080:8080"
+      - "8080:8080"
 
+  # ── Frontend ──────────────────────────────────────────────────────────────
   frontend:
     build:
       context: .
       dockerfile: frontend/Dockerfile
     working_dir: /app/frontend
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:5173"]
+      test: ["CMD", "curl", "-fsS", "http://localhost:5173"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
     command: sh -c "npm ci && npm run dev"
     volumes:
-    - ./frontend/src:/app/frontend/src
-    - ./frontend/index.html:/app/frontend/index.html
-    - ./frontend/vite.config.js:/app/frontend/vite.config.js
-    - ./frontend/package.json:/app/frontend/package.json
-    - ./frontend/package-lock.json:/app/frontend/package-lock.json
-    - frontend-node-modules:/app/frontend/node_modules
+      - ./frontend/src:/app/frontend/src
+      - ./frontend/index.html:/app/frontend/index.html
+      - ./frontend/vite.config.js:/app/frontend/vite.config.js
+      - ./frontend/package.json:/app/frontend/package.json
+      - ./frontend/package-lock.json:/app/frontend/package-lock.json
+      - frontend-node-modules:/app/frontend/node_modules
     ports:
-    - "5173:5173"
+      - "5173:5173"
 
+  # ── nginx reverse proxy ───────────────────────────────────────────────────
   nginx:
     image: nginx:1.27
     volumes:
-    - ./nginx/dev.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./nginx/dev.conf:/etc/nginx/conf.d/default.conf:ro
     depends_on:
       frontend:
         condition: service_healthy
       backend:
         condition: service_healthy
     ports:
-    - "8088:80"
+      - "8088:80"
 
+  # ── Playwright (headless Docker) ──────────────────────────────────────────
   playwright:
     image: mcr.microsoft.com/playwright:v1.57.0
     working_dir: /app/frontend
-    command: sh -c "npm ci && npx playwright install --with-deps chrome && npx playwright install --with-deps msedge && npx playwright test"
+    command: >
+      sh -c "npm ci &&
+             npx playwright install --with-deps chrome &&
+             npx playwright install --with-deps msedge &&
+             npx playwright test"
     profiles:
-    - playwright
+      - playwright
     depends_on:
-    - nginx
+      - nginx
     environment:
       PLAYWRIGHT_BASE_URL: http://nginx
       PLAYWRIGHT_OUTPUT_DIR: /tmp/playwright-results
     volumes:
-    - ./frontend/e2e/playwright/default:/app/frontend/e2e/playwright/default
-    - ./frontend/playwright.config.js:/app/frontend/playwright.config.js
-    - ./frontend/package.json:/app/frontend/package.json
-    - ./frontend/package-lock.json:/app/frontend/package-lock.json
-    - playwright-node-modules:/app/frontend/node_modules
-    - playwright-results:/tmp/playwright-results
+      - ./frontend/e2e/playwright/default:/app/frontend/e2e/playwright/default
+      - ./frontend/playwright.config.js:/app/frontend/playwright.config.js
+      - ./frontend/package.json:/app/frontend/package.json
+      - ./frontend/package-lock.json:/app/frontend/package-lock.json
+      - playwright-node-modules:/app/frontend/node_modules
+      - playwright-results:/tmp/playwright-results
 
+  # ── Cypress (headless Docker) ─────────────────────────────────────────────
   cypress:
     image: cypress/browsers:24.13.0
     working_dir: /app/frontend
     command: sh -c "npm ci && npx cypress run --config baseUrl=http://nginx"
     profiles:
-    - cypress
+      - cypress
     depends_on:
-    - nginx
+      - nginx
     volumes:
-    - ./frontend/e2e/cypress:/app/frontend/e2e/cypress
-    - ./frontend/cypress.config.js:/app/frontend/cypress.config.js
-    - ./frontend/package.json:/app/frontend/package.json
-    - ./frontend/package-lock.json:/app/frontend/package-lock.json
-    - cypress-node-modules:/app/frontend/node_modules
+      - ./frontend/e2e/cypress:/app/frontend/e2e/cypress
+      - ./frontend/cypress.config.js:/app/frontend/cypress.config.js
+      - ./frontend/package.json:/app/frontend/package.json
+      - ./frontend/package-lock.json:/app/frontend/package-lock.json
+      - cypress-node-modules:/app/frontend/node_modules
 
-  ### Host-level containers to simulate remote browser environments
+  # ── Remote browser helpers ────────────────────────────────────────────────
 
   chrome:
     image: ghcr.io/browserless/chrome:v2.38.4
     network_mode: host
     profiles:
-    - chrome
-    - e2e-playwright-remote
+      - chrome
+      - e2e-playwright-remote
 
   chromium:
     image: ghcr.io/browserless/chromium:v2.38.4
     network_mode: host
     profiles:
-    - chromium
-    - e2e-puppeteer-remote
+      - chromium
+      - e2e-puppeteer-remote
 
   selenium-browser:
     image: selenium/standalone-chrome:latest
@@ -117,8 +142,10 @@ services:
     environment:
       SE_OPTS: "--port 3000"
     profiles:
-    - selenium-browser
-    - e2e-selenium-remote
+      - selenium-browser
+      - e2e-selenium-remote
+
+  # ── Remote E2E runners ────────────────────────────────────────────────────
 
   e2e-playwright-remote:
     image: node:25
@@ -129,17 +156,16 @@ services:
       PLAYWRIGHT_WS_ENDPOINT: ws://localhost:3000/chrome/playwright
       PLAYWRIGHT_BASE_URL: http://localhost:8088
     profiles:
-    - e2e-playwright-remote
+      - e2e-playwright-remote
     depends_on:
-    - nginx
-    #    - chrome
+      - nginx
     volumes:
-    - ./frontend/e2e/playwright/remote:/app/frontend/e2e/playwright/remote
-    - ./frontend/playwright.remote.config.js:/app/frontend/playwright.remote.config.js
-    - ./frontend/package.json:/app/frontend/package.json
-    - ./frontend/package-lock.json:/app/frontend/package-lock.json
-    - playwright-node-modules:/app/frontend/node_modules
-    - playwright-results:/tmp/playwright-results
+      - ./frontend/e2e/playwright/remote:/app/frontend/e2e/playwright/remote
+      - ./frontend/playwright.remote.config.js:/app/frontend/playwright.remote.config.js
+      - ./frontend/package.json:/app/frontend/package.json
+      - ./frontend/package-lock.json:/app/frontend/package-lock.json
+      - playwright-node-modules:/app/frontend/node_modules
+      - playwright-results:/tmp/playwright-results
 
   e2e-puppeteer-remote:
     image: node:25
@@ -150,34 +176,32 @@ services:
       PUPPETEER_WS_ENDPOINT: ws://localhost:3000
       PUPPETEER_BASE_URL: http://localhost:8088
     profiles:
-    - e2e-puppeteer-remote
+      - e2e-puppeteer-remote
     depends_on:
-    - nginx
-    #    - chromium
+      - nginx
     volumes:
-    - ./frontend/e2e/puppeteer:/app/frontend/e2e/puppeteer
-    - ./frontend/package.json:/app/frontend/package.json
-    - ./frontend/package-lock.json:/app/frontend/package-lock.json
-    - puppeteer-node-modules:/app/frontend/node_modules
+      - ./frontend/e2e/puppeteer:/app/frontend/e2e/puppeteer
+      - ./frontend/package.json:/app/frontend/package.json
+      - ./frontend/package-lock.json:/app/frontend/package-lock.json
+      - puppeteer-node-modules:/app/frontend/node_modules
 
   e2e-selenium-remote:
     image: node:25
+    network_mode: host
     working_dir: /app/frontend
     command: sh -c "npm ci && npm run test:e2e:selenium:remote"
     environment:
       SELENIUM_REMOTE_URL: http://localhost:3000
       SELENIUM_BASE_URL: http://localhost:8088
     profiles:
-    - e2e-selenium-remote
+      - e2e-selenium-remote
     depends_on:
-    - nginx
-    #    - selenium-browser
-    network_mode: host
+      - nginx
     volumes:
-    - ./frontend/e2e/selenium:/app/frontend/e2e/selenium
-    - ./frontend/package.json:/app/frontend/package.json
-    - ./frontend/package-lock.json:/app/frontend/package-lock.json
-    - selenium-node-modules:/app/frontend/node_modules
+      - ./frontend/e2e/selenium:/app/frontend/e2e/selenium
+      - ./frontend/package.json:/app/frontend/package.json
+      - ./frontend/package-lock.json:/app/frontend/package-lock.json
+      - selenium-node-modules:/app/frontend/node_modules
 
 volumes:
   db-data:

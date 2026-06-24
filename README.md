@@ -1,101 +1,130 @@
 # Agent Workflow Testing
 
-Bootstrap project for verifying changes in a Go + React app with Postgres and an nginx dev proxy.
+Bootstrap project for verifying agent-driven changes in a Go + React application with PostgreSQL and an nginx dev proxy.
 
-## Layout
+## Repository layout
 
-- `backend/` Go API server (multi-module with `shared/`).
-- `frontend/` React app (Vite).
-- `nginx/` reverse proxy for `/` (frontend) and `/api` (backend).
-
-## Dev workflow
-
-```bash
-docker-compose up --build
+```
+.
+├── backend/                    Go API server
+│   ├── cmd/server/main.go      Entry point
+│   └── internal/
+│       ├── api/routes.go       Router wiring
+│       ├── db/db.go            DB connectivity & schema
+│       ├── handlers/           HTTP handler implementations
+│       ├── middleware/         Logger, CORS, Recover, TraceID
+│       └── models/             Domain types & request validation
+├── frontend/                   React app (Vite)
+│   └── src/
+│       ├── components/         Header, MessageForm, MessageList
+│       ├── hooks/              useMessages (reducer-based state)
+│       └── utils/api.js        Fetch wrapper
+├── nginx/dev.conf              Reverse proxy (/ → frontend, /api → backend)
+├── shared/version/             Shared version package
+└── docker-compose.yml          Full local stack
 ```
 
-Frontend dependencies are installed inside the container with a dedicated `frontend-node-modules` volume, and the compose file only bind-mounts the frontend sources/config, so `node_modules` is not created on the host.
-
-Visit:
-
-- `http://localhost:8088` (nginx proxy)
-- `http://localhost:8080/api/health` (backend direct)
-- `http://localhost:5173` (frontend direct)
-
-## API
-
-- `GET /api/health`
-- `GET /api/messages`
-- `POST /api/messages` `{ "content": "hello" }`
-
-## Playwright
-
-This target starts the stack and stops it afterward:
+## Quick start
 
 ```bash
-make e2e-playwright
+docker compose up --build
 ```
 
-Run Playwright inside Docker:
+Frontend `node_modules` live in a named Docker volume — nothing is written to the host.
+
+| URL | Service |
+|-----|---------|
+| <http://localhost:8088> | nginx proxy (recommended entry point) |
+| <http://localhost:8080/api/health> | backend direct |
+| <http://localhost:5173> | Vite dev server direct |
+
+## API reference
+
+| Method | Path | Description |
+|--------|------|-------------|
+| `GET` | `/api/health` | Returns status, version, and DB latency |
+| `GET` | `/api/ready` | Readiness probe (alias for health) |
+| `GET` | `/api/stats` | DB connection pool metrics |
+| `GET` | `/api/messages?limit=N` | List recent messages (default 20, max 100) |
+| `POST` | `/api/messages` | Create a message `{ "content": "...", "author": "..." }` |
+| `DELETE` | `/api/messages/:id` | Delete a message by ID |
+
+### Example requests
+
+```bash
+# Check health
+curl http://localhost:8080/api/health
+
+# Post a message
+curl -X POST http://localhost:8080/api/messages \
+  -H 'Content-Type: application/json' \
+  -d '{"content":"Hello from curl","author":"dev"}'
+
+# List messages
+curl http://localhost:8080/api/messages?limit=5
+
+# Delete a message
+curl -X DELETE http://localhost:8080/api/messages/1
+```
+
+## Environment variables
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `DB_HOST` | `db` | PostgreSQL host |
+| `DB_PORT` | `5432` | PostgreSQL port |
+| `DB_USER` | `app` | PostgreSQL user |
+| `DB_PASSWORD` | `app` | PostgreSQL password |
+| `DB_NAME` | `app` | PostgreSQL database |
+| `DB_SSLMODE` | `disable` | SSL mode |
+| `APP_ADDR` | `:8080` | HTTP listen address |
+
+Override at link time to embed a build hash:
+
+```bash
+go build -ldflags "-X agent-workflow-testing/shared/version.BuildMetadata=$(git rev-parse --short HEAD)"
+```
+
+## E2E testing
+
+### Playwright (remote browser)
+
+```bash
+docker compose up -d --build
+docker compose --profile e2e-playwright-remote run --rm --no-deps e2e-playwright-remote
+```
+
+### Playwright (headless Docker)
 
 ```bash
 make e2e-playwright-in-docker
 ```
 
-Run Playwright against a remote browser already exposed on `localhost:3000`:
-
-```bash
-make e2e-playwright-remote
-```
-
-This uses host networking and `PLAYWRIGHT_WS_ENDPOINT=ws://localhost:3000/chrome/playwright`.
-
-## Cypress
-
-This target starts the stack and stops it afterward:
+### Cypress
 
 ```bash
 make e2e-cypress
-```
-
-Run Cypress inside Docker:
-
-```bash
+# or inside Docker:
 make e2e-cypress-in-docker
 ```
 
-## Selenium
-
-This target starts the stack and stops it afterward:
+### Selenium (remote browser)
 
 ```bash
-make e2e-selenium
+docker compose up -d --build
+docker compose --profile e2e-selenium-remote run --rm --no-deps e2e-selenium-remote
 ```
 
-To run Selenium against a remote browser exposed on `localhost:3000`:
+### Puppeteer (remote browser)
 
 ```bash
-make e2e-selenium-remote
+docker compose up -d --build
+docker compose --profile e2e-puppeteer-remote run --rm --no-deps e2e-puppeteer-remote
 ```
 
-This uses host networking so the test container can reach both the app and the remote browser. The defaults are `SELENIUM_REMOTE_URL=http://localhost:3000` and `SELENIUM_BASE_URL=http://localhost:8088`.
+## Development notes
 
-Override endpoints as needed:
-
-- `SELENIUM_REMOTE_URL` (defaults to `http://localhost:3000`)
-
-## Puppeteer
-
-This target starts the stack and stops it afterward:
-
-```bash
-make e2e-puppeteer
-```
-
-To run Puppeteer against a remote browser exposed on `localhost:3000`:
-
-```bash
-make e2e-puppeteer-remote
-```
-
-This uses host networking so the test container can reach both the app and the remote browser. The defaults are `PUPPETEER_WS_ENDPOINT=ws://localhost:3000` and `PUPPETEER_BASE_URL=http://localhost:8088`.
+- The backend uses a **connection retry loop** (5 attempts, exponential back-off) so it tolerates PostgreSQL taking a few seconds to start.
+- All JSON errors are returned as `{ "error": "...", "code": <status> }`.
+- CORS is wide-open for local development — tighten before shipping.
+- The frontend auto-refreshes the message list every 60 seconds.
