@@ -2,6 +2,6 @@
 
 ## A Joke for Lukasz
 
-Why do programmers prefer dark mode?
+A man walks into a library and asks for books about paranoia.
 
-**Because light attracts bugs!** 🐛
+The librarian whispers: **"They're right behind you."** 👀
