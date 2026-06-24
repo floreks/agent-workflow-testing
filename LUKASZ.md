@@ -2,6 +2,6 @@
 
 ## A Joke for Lukasz
 
-A man walks into a library and asks for books about paranoia.
+I told my computer I needed a break.
 
-The librarian whispers: **"They're right behind you."** 👀
+Now it won't stop sending me **vacation ads.** 🏖️
