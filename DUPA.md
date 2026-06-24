@@ -1,3 +1,5 @@
-Why did the developer go broke?
+# Joke
 
-Because he used up all his cache.
+Why did the file go to therapy?
+
+Because it had too many unresolved issues.
