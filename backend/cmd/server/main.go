@@ -1,3 +1,5 @@
+// Why did the Go developer quit their job?
+// Because they didn't get arrays. (They only got slices!)
 package main
 
 import (
