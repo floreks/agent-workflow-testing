@@ -45,6 +45,7 @@ func main() {
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/api/health", app.handleHealth)
+	mux.HandleFunc("/api/joke", app.handleJoke)
 	mux.HandleFunc("/api/messages", app.handleMessages)
 
 	addr := getenv("APP_ADDR", ":8080")
@@ -163,6 +164,18 @@ func logRequests(next http.Handler) http.Handler {
 		next.ServeHTTP(w, r)
 		log.Printf("%s %s %s", r.Method, r.URL.Path, time.Since(start))
 	})
+}
+
+func (s *server) handleJoke(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	payload := map[string]string{
+		"setup":     "Why do Go programmers wear glasses?",
+		"punchline": "Because they don't C#.",
+	}
+	writeJSON(w, http.StatusOK, payload)
 }
 
 func getenv(key, fallback string) string {
