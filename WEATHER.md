@@ -115,4 +115,7 @@ June is historically one of the most pleasant months in Central Poland, featurin
 >
 > **What's the difference between weather and climate?**  
 > You can't climb a tree in a weather, but you can certainly climate! 🌲
+>
+> **Why did the weather forecaster bring a bar of soap to work?**  
+> Because they were expecting showers! 🧼
 
