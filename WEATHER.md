@@ -105,3 +105,14 @@ June is historically one of the most pleasant months in Central Poland, featurin
 | 🏃‍♂️ **Zgierz Activities** | Perfect weather for outdoor leisure along the **Bzura River** or walking in the **City Park (Park Miejski w Zgierzu)**. Sunday looks to be the most stable day for dry, sunny outdoor planning. |
 | 🛍️ **Łódź Activities** | Perfect weather for strolling along **Piotrkowska Street**, visiting the outdoor areas of **Manufaktura**, or exploring **Park im. ks. J. Poniatowskiego**. |
 | ⛈️ **Thunderstorms** | **Thunderstorm Caution (Monday):** Keep an eye on local radar during Monday afternoon. Severe thunderstorms with brief heavy rain or gusts are typical as cooler air moves in on Tuesday. |
+
+---
+
+## 🤪 Weather Humor
+
+> **Why don't weather forecasters in Zgierz get into arguments?**  
+> Because they always agree to disagree, but eventually, everything just blows over! 💨
+>
+> **What's the difference between weather and climate?**  
+> You can't climb a tree in a weather, but you can certainly climate! 🌲
+
