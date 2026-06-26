@@ -8,35 +8,26 @@
 
 ## 📍 Geographic Information
 
-*   **Zgierz Coordinates:** 51.8560° N, 19.4064° E
-*   **Łódź Coordinates:** 51.7502° N, 19.4560° E
-*   *Note: Zgierz and Łódź are directly adjacent cities within the same metropolitan area, sharing extremely similar atmospheric patterns, with minor localized variations.*
+| City | Latitude | Longitude | Regional Context |
+| :--- | :---: | :---: | :--- |
+| **Zgierz** | 51.8560° N | 19.4064° E | Adjacent to Łódź within the metropolitan area; shares identical general atmospheric patterns. |
+| **Łódź** | 51.7502° N | 19.4560° E | Core metropolitan city adjacent to Zgierz; shares identical general atmospheric patterns. |
 
 ---
 
 ## ☀️ Current Conditions (Friday, June 26, 2026)
 
-### 🏡 Zgierz
-*   **Temperature:** 26°C (79°F)
-*   **Conditions:** Decreasing clouds, turning mostly sunny
-*   **Relative Humidity:** 52%
-*   **Wind:** 12 km/h (7.5 mph) from the West-Northwest (WNW)
-*   **Barometric Pressure:** 1016 hPa (Rising)
-*   **UV Index:** 6 (High) - *Sun protection recommended*
-*   **Precipitation Probability:** 10%
-*   **Dew Point:** 15°C (59°F)
-*   **Visibility:** 10 km (6 miles)
-
-### 🏢 Łódź
-*   **Temperature:** 26°C (79°F)
-*   **Conditions:** Decreasing clouds, turning mostly sunny
-*   **Relative Humidity:** 50%
-*   **Wind:** 13 km/h (8 mph) from the West-Northwest (WNW)
-*   **Barometric Pressure:** 1016 hPa (Rising)
-*   **UV Index:** 6 (High) - *Sun protection recommended*
-*   **Precipitation Probability:** 10%
-*   **Dew Point:** 14°C (57°F)
-*   **Visibility:** 10 km (6 miles)
+| Weather Parameter | 🏡 Zgierz | 🏢 Łódź |
+| :--- | :--- | :--- |
+| **Temperature** | 26°C (79°F) | 26°C (79°F) |
+| **Conditions** | Decreasing clouds, turning mostly sunny | Decreasing clouds, turning mostly sunny |
+| **Relative Humidity** | 52% | 50% |
+| **Wind** | 12 km/h (7.5 mph) from West-Northwest (WNW) | 13 km/h (8 mph) from West-Northwest (WNW) |
+| **Barometric Pressure** | 1016 hPa (Rising) | 1016 hPa (Rising) |
+| **UV Index** | 6 (High) - *Sun protection recommended* | 6 (High) - *Sun protection recommended* |
+| **Precipitation %** | 10% | 10% |
+| **Dew Point** | 15°C (59°F) | 14°C (57°F) |
+| **Visibility** | 10 km (6 miles) | 10 km (6 miles) |
 
 ---
 
@@ -92,21 +83,25 @@ The late June period is characterized by warm summer weather, slightly above his
 
 ---
 
-## 📊 Climate & Historical Norms for June
+## 📊 Climate & Historical Norms for June (Central Poland)
 
 June is historically one of the most pleasant months in Central Poland, featuring long days and comfortable temperatures, although it represents the peak of summer rainfall.
 
-*   **Average High Temperature:** 21°C to 24°C (70°F to 75°F)
-*   **Average Low Temperature:** 11°C to 13°C (52°F to 55°F)
-*   **Average Monthly Rainfall:** 70–80 mm (distributed across 9–15 days)
-*   **Daily Sunshine:** ~8.4 hours of direct sunlight per day
-*   **Daylight Length:** Around 16 hours and 45 minutes (longest days of the year around the Solstice)
+| Climate Parameter | Typical Value / Range | Regional Context |
+| :--- | :--- | :--- |
+| **Average High Temperature** | 21°C to 24°C (70°F to 75°F) | Warm and pleasant afternoon temperatures |
+| **Average Low Temperature** | 11°C to 13°C (52°F to 55°F) | Cool and comfortable overnight conditions |
+| **Average Monthly Rainfall** | 70–80 mm | Peak of summer precipitation, spread over 9–15 days |
+| **Daily Sunshine Hours** | ~8.4 hours | Abundant direct daylight for solar potential |
+| **Daylight Length** | ~16 hours and 45 minutes | Longest days of the year around the Summer Solstice |
 
 ---
 
 ## 💡 Weather Advisories & Activities
 
-*   🕶️ **Sun Protection:** With a UV Index peaking at 6–7 over the weekend, sunscreen (SPF 30+), hats, and sunglasses are highly recommended between 11:00 and 15:00 for both Zgierz and Łódź.
-*   🏃‍♂️ **Outdoor Activities in Zgierz:** Perfect weather for outdoor leisure along the **Bzura River** or walking in the **City Park (Park Miejski w Zgierzu)**. Sunday looks to be the most stable day for dry, sunny outdoor planning.
-*   🛍️ **Outdoor Activities in Łódź:** Perfect weather for strolling along **Piotrkowska Street**, visiting the outdoor areas of **Manufaktura**, or exploring **Park im. ks. J. Poniatowskiego**.
-*   ⛈️ **Thunderstorm Caution (Monday):** Keep an eye on local radar during Monday afternoon. Severe thunderstorms with brief heavy rain or gusts are typical as cooler air moves in on Tuesday.
+| Category | Advisories & Activity Recommendations |
+| :--- | :--- |
+| 🕶️ **Sun Safety** | With a UV Index peaking at 6–7 over the weekend, sunscreen (SPF 30+), hats, and sunglasses are highly recommended between 11:00 and 15:00 for both Zgierz and Łódź. |
+| 🏃‍♂️ **Zgierz Activities** | Perfect weather for outdoor leisure along the **Bzura River** or walking in the **City Park (Park Miejski w Zgierzu)**. Sunday looks to be the most stable day for dry, sunny outdoor planning. |
+| 🛍️ **Łódź Activities** | Perfect weather for strolling along **Piotrkowska Street**, visiting the outdoor areas of **Manufaktura**, or exploring **Park im. ks. J. Poniatowskiego**. |
+| ⛈️ **Thunderstorms** | **Thunderstorm Caution (Monday):** Keep an eye on local radar during Monday afternoon. Severe thunderstorms with brief heavy rain or gusts are typical as cooler air moves in on Tuesday. |
