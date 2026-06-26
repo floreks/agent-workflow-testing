@@ -18,3 +18,18 @@ test("can post a message and see it listed", async ({ page }) => {
   const list = page.getByRole("list");
   await expect(list).toContainText(message, { timeout: 10_000 });
 });
+
+
+test("clears validation error after a successful submit", async ({ page }) => {
+  const message = `Playwright clear ${Date.now()}`;
+
+  await page.goto("/");
+  await page.getByRole("button", { name: "Send" }).click();
+  await expect(page.getByText("Please enter a message.")).toBeVisible();
+
+  await page.getByPlaceholder("What should the agent verify?").fill(message);
+  await page.getByRole("button", { name: "Send" }).click();
+
+  await expect(page.getByText("Please enter a message.")).toBeHidden();
+  await expect(page.getByRole("list")).toContainText(message, { timeout: 10_000 });
+});
