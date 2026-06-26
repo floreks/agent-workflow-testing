@@ -16,6 +16,7 @@ export default function App() {
       }
       const data = await res.json();
       setMessages(data);
+      setError("");
     } catch (err) {
       setError(err.message);
     }
@@ -59,7 +60,7 @@ export default function App() {
       }
 
       setContent("");
-      loadMessages();
+      await loadMessages();
     } catch (err) {
       setError(err.message);
     }
