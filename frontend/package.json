@@ -11,7 +11,8 @@
     "test:e2e:cypress": "cypress run",
     "test:e2e:playwright:remote": "playwright test -c playwright.remote.config.js",
     "test:e2e:selenium:remote": "SELENIUM_REMOTE_URL=http://localhost:3000 node --test e2e/selenium/app.test.js",
-    "test:e2e:puppeteer:remote": "PUPPETEER_WS_ENDPOINT=ws://localhost:3000 node --test e2e/puppeteer/app.test.js"
+    "test:e2e:puppeteer:remote": "PUPPETEER_WS_ENDPOINT=ws://localhost:3000 node --test e2e/puppeteer/app.test.js",
+    "test": "node --test tests/*.test.js"
   },
   "dependencies": {
     "react": "18.3.1",

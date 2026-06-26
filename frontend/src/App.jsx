@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
+import { countToHundred } from "./count";
 
 const apiBase = import.meta.env.VITE_API_BASE || "";
+const numbers = countToHundred();
 
 export default function App() {
   const [health, setHealth] = useState({ status: "checking" });
@@ -76,6 +78,15 @@ export default function App() {
           {health.status}
         </div>
       </header>
+
+      <section className="panel">
+        <h2>Count to 100</h2>
+        <ol aria-label="Count to 100">
+          {numbers.map((number) => (
+            <li key={number}>{number}</li>
+          ))}
+        </ol>
+      </section>
 
       <section className="panel">
         <h2>Post a message</h2>
