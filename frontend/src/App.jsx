@@ -1,12 +1,18 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 const apiBase = import.meta.env.VITE_API_BASE || "";
+const targetCount = 1234;
+
+function buildCountList(limit) {
+  return Array.from({ length: limit }, (_, index) => index + 1);
+}
 
 export default function App() {
   const [health, setHealth] = useState({ status: "checking" });
   const [messages, setMessages] = useState([]);
   const [content, setContent] = useState("");
   const [error, setError] = useState("");
+  const countList = useMemo(() => buildCountList(targetCount), []);
 
   const loadMessages = async () => {
     try {
@@ -78,6 +84,12 @@ export default function App() {
       </header>
 
       <section className="panel">
+        <h2>Count to 1234</h2>
+        <p>Here is the requested count from 1 through {targetCount}.</p>
+        <output aria-label="Count to 1234">{countList.join(", ")}</output>
+      </section>
+
+      <section className="panel">
         <h2>Post a message</h2>
         <form onSubmit={submitMessage}>
           <input
@@ -109,3 +121,5 @@ export default function App() {
     </div>
   );
 }
+
+export { buildCountList, targetCount };
