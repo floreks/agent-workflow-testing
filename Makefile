@@ -15,6 +15,14 @@ down:
 test-skills-format:
 	./scripts/validate-skill-format.sh
 
+.PHONY: weather
+weather:
+	./scripts/weather.sh $(ARGS)
+
+.PHONY: test-weather
+test-weather:
+	./scripts/test-weather.sh
+
 ## Local E2E
 # Require node and npm to be available on the host.
 
