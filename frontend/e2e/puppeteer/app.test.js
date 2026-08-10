@@ -58,3 +58,51 @@ test("can post a message and see it listed", async () => {
     await browser.close();
   }
 });
+
+test("can delete a message", async () => {
+  const browser = await createBrowser();
+  const page = await browser.newPage();
+
+  try {
+    const message = `ToDelete ${Date.now()}`;
+
+    await page.goto(`${baseUrl}/`, { waitUntil: "domcontentloaded" });
+    
+    // Create message
+    await page.waitForSelector("input[placeholder=\"What should the agent verify?\"]", { timeout: 10_000 });
+    await page.type("input[placeholder=\"What should the agent verify?\"]", message);
+    await page.click("button[type=\"submit\"]");
+
+    // Wait for it to appear
+    await page.waitForFunction(
+      (text) => {
+        const list = document.querySelector("ul");
+        return list && list.textContent && list.textContent.includes(text);
+      },
+      { timeout: 10_000 },
+      message
+    );
+
+    // Delete it
+    await page.evaluate((text) => {
+      const items = Array.from(document.querySelectorAll("li"));
+      const item = items.find(li => li.textContent.includes(text));
+      const btn = item.querySelector("button[aria-label=\"Delete message\"]");
+      if (btn) btn.click();
+    }, message);
+
+    // Wait for it to disappear
+    await page.waitForFunction(
+      (text) => {
+        const list = document.querySelector("ul");
+        return list && list.textContent && !list.textContent.includes(text);
+      },
+      { timeout: 10_000 },
+      message
+    );
+
+  } finally {
+    await page.close();
+    await browser.close();
+  }
+});
