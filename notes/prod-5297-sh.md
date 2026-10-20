@@ -1,1 +1,1 @@
-The runtime for this smoke test is sh, and today is 2026-10-19.
+The smoke test ran on 2026-10-19 using the sh runtime.
